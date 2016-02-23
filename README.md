@@ -3,10 +3,12 @@ a selfie retweet bot<br>
 ===
 原理
 ===
+```markdown
 1.抓推
 2.图片下载
 3.人脸识别
 4.转推
+```
 
 关键字列表：<br>
 ===
