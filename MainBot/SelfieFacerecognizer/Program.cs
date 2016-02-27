@@ -11,7 +11,7 @@ using System.Net.Http.Headers;
 using System.Web;
 using Microsoft.ProjectOxford.Face;
 using Microsoft.ProjectOxford.Face.Contract;
-
+using System.IO;
 
 namespace SelfieBot
 {
@@ -24,7 +24,7 @@ namespace SelfieBot
         static void Main(string[] args)
         {
 #if DEBUG
-            MakeRequest("http://cos.japaninfoz.com/cos/qdig-files/converted-images/_chiiiii_85/med_Cama6d4VAAAmH5K.jpg");
+            MakeRequestUrl("http://cos.japaninfoz.com/cos/qdig-files/converted-images/_chiiiii_85/med_Cama6d4VAAAmH5K.jpg");
 #else
             if (!mutex.WaitOne(TimeSpan.FromSeconds(5), false))
             {
@@ -112,7 +112,25 @@ namespace SelfieBot
 
         }
 
-        static  bool MakeRequest(string surl)
+        static bool MakeRequestLocalFile(String file)
+        {
+            var requiedFaceAttributes = new FaceAttributeType[] {
+              //  FaceAttributeType.Age,
+                FaceAttributeType.Gender,
+                //FaceAttributeType.Smile,
+                //FaceAttributeType.FacialHair,
+                //FaceAttributeType.HeadPose
+            };
+            using (Stream s = File.OpenRead(file))
+            {
+
+                var faces = new List<Face>(faceServiceClient.DetectAsync(s,true,false, requiedFaceAttributes).Result);
+                return faces.Any(face => face.FaceAttributes.Gender == "famale");
+            }
+
+        }
+
+        static  bool MakeRequestUrl(string surl)
         {
             var requiedFaceAttributes = new FaceAttributeType[] {
               //  FaceAttributeType.Age,
