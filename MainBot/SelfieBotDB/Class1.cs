@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SelfieBotDB
+namespace SelfieBot
 {
     public class SelfieBotDB
     {
@@ -14,5 +14,20 @@ namespace SelfieBotDB
         }
 
         private string dbconnectString;
+
+        public List<WaitRecognizer> getAllWaitRecognizer()
+        {
+            return new List<WaitRecognizer>();
+        }
+
+        public void addToRetweet()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void removeWaitRecognizer(WaitRecognizer nr)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
