@@ -19,8 +19,24 @@ namespace SelfieBot
         {
             return new List<WaitRecognizer>();
         }
+       
 
         public void addToRetweet()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<string> getBlockTexts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<string> getNameBlockTexts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<string> getBandIDs()
         {
             throw new NotImplementedException();
         }
