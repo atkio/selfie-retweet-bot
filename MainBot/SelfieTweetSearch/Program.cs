@@ -19,7 +19,7 @@ namespace SelfieBot
         static void Main(string[] args)
         {
         }
-
+        static SelfieBotConfig config = new SelfieBotConfig();
         private static ApplicationOnlyAuthorizer auth = null;
 
         static void prepare()
@@ -30,8 +30,8 @@ namespace SelfieBot
                 {
                     CredentialStore = new InMemoryCredentialStore()
                     {
-                        ConsumerKey = "o95VBskri0fnYBAxZ68yLg",
-                        ConsumerSecret = "XS2ZpjJhN111P8rf8mwyjbBjePPQXbcqW2WfJg5ckNk"
+                        ConsumerKey = config.ConsumerKey,
+                        ConsumerSecret = config.ConsumerSecret
                     }
                 };
                 auth.AuthorizeAsync().Wait();
