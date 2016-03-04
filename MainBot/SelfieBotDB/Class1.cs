@@ -25,6 +25,11 @@ namespace SelfieBot
             throw new NotImplementedException();
         }
 
+        public void addWaitRecognizer(WaitRecognizer ul)
+        {
+            throw new NotImplementedException();
+        }
+
         public void removeWaitRecognizer(WaitRecognizer nr)
         {
             throw new NotImplementedException();
