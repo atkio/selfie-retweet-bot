@@ -35,7 +35,7 @@ namespace SelfieBot
             {
                 db.getAllWaitRecognizer()
                     .ForEach(nr =>{
-                        if ( Detect(nr.PhotoPath,nr.PhotoUrl)) db.addToRetweet();
+                        if ( Detect(nr.PhotoPath,nr.PhotoUrl)) db.addToRetweet(nr.TID);
                         //
                         db.removeWaitRecognizer(nr);
                         File.Delete(nr.PhotoPath);
@@ -97,13 +97,16 @@ namespace SelfieBot
                     return false;
 
 
-                return faces.Any(fa =>
+                if (faces.Any(fa =>
                      eye.DetectMultiScale(
                                    new UMat(ugray, fa),
                                    1.1,
                                    10,
                                    new Size(20, 20)).Count() > 0
-                );
+                ))
+                return MakeRequestUrl(url);
+
+                return false;
 
             }
 

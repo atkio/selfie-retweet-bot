@@ -40,6 +40,11 @@ namespace SelfieBot
             throw new NotImplementedException();
         }
 
+        public void removeRetweet(ulong id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Dictionary<string, ulong> getUserList()
         {
             throw new NotImplementedException();
@@ -51,6 +56,11 @@ namespace SelfieBot
         }
 
         public void updateUserList(string key, ulong maxid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void addToRetweet(string tID)
         {
             throw new NotImplementedException();
         }

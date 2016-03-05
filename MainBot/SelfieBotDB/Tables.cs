@@ -22,4 +22,11 @@ namespace SelfieBot
         [Column(Name = "PhotoUrl", CanBeNull = false, DbType = "varchar")]
         public string PhotoUrl { get; set; }
     }
+
+    [Table(Name = "WaitRetweet")]
+    public class WaitRetweet
+    {
+        [Column(Name = "TID", CanBeNull = false, DbType = "varchar")]
+        public string TID { get; set; }
+    }
 }

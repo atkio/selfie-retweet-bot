@@ -26,6 +26,7 @@ namespace SelfieBot
                foreach(ulong id in db.getWaitRetweet())
                 {
                     reTweet(id).Wait();
+                    db.removeRetweet(id);
                     Thread.Sleep(90*1000);
                 }
 
