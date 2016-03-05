@@ -14,12 +14,13 @@ namespace SelfieBot
         public static List<Status> Filter(List<Status> src)
         {
            return src
+            .AsParallel()
             .Where(tw => tw.User.ScreenNameResponse != config.MyID() &&
                          !db.getBlockTexts().Any(bt=> tw.Text.Contains(bt)) &&
                          !db.getBandIDs().Contains(tw.User.ScreenNameResponse) &&
                          !db.getNameBlockTexts().Any(bt => tw.User.Name.Contains(bt)) &&                                     
                          tw.RetweetedStatus.StatusID == 0 )                      
-              .ToList();            
+           .ToList();            
         }
 
         public static Dictionary<Status, List<string>> GetImageURL(List<Status> src)

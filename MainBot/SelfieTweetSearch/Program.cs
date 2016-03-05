@@ -16,8 +16,35 @@ namespace SelfieBot
 {
     public class SelfieTweetSearch
     {
+        static Mutex mutex = new Mutex(false, "japaninfoz.com SelfieTweetSearch");
+
+
         static void Main(string[] args)
         {
+            if (!mutex.WaitOne(TimeSpan.FromSeconds(5), false))
+            {
+                Console.WriteLine("Another instance of the app is running. Bye!");
+                return;
+            }
+
+            var db = new SelfieBotDB();
+            try
+            {
+                db.getAllWaitRecognizer()
+                    .ForEach(nr =>
+                    {
+                        if (Detect(nr.PhotoPath, nr.PhotoUrl)) db.addToRetweet();
+                        //
+                        db.removeWaitRecognizer(nr);
+                        File.Delete(nr.PhotoPath);
+                    });
+
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
+
         }
         static SelfieBotConfig config = new SelfieBotConfig();
         private static ApplicationOnlyAuthorizer auth = null;
@@ -99,7 +126,7 @@ namespace SelfieBot
                     break;
                 }
             }
-
+            rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
             return SelfieTweetFilter.Filter(rslist);            
         }
 
