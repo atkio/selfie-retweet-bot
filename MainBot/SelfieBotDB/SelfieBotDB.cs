@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Linq;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,96 +10,210 @@ namespace SelfieBot
 {
     public class SelfieBotDB
     {
+
         public SelfieBotDB()
         {
-
+            con = SqliteConnect.GetSqlConnection();
         }
-        
+
+        IDbConnection con = null; 
 
         public List<WaitRecognizer> getAllWaitRecognizer()
         {
-            return new List<WaitRecognizer>();
+            using (var context = new DataContext(con))
+            {
+                return
+                 context.GetTable<WaitRecognizer>()
+                     .ToList();
+            }
         }
        
-
-        public void addToRetweet()
-        {
-            throw new NotImplementedException();
-        }
-
         public List<string> getBlockTexts()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+               return
+                context.GetTable<BlockText>().
+                    Select(bt => bt.TEXT)
+                    .ToList();
+            }
+
         }
 
         public List<string> getNameBlockTexts()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                return
+                 context.GetTable<BlockName>().
+                     Select(bt => bt.NAME)
+                     .ToList();
+            }
         }
 
-        public IEnumerable<ulong> getWaitRetweet()
+        public List<ulong> getWaitRetweet()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                return
+                 context.GetTable<WaitRetweet>().
+                     Select(bt => ulong.Parse (bt.TID))
+                     .ToList();
+            }
         }
 
         public void removeRetweet(ulong id)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+
+                var table = context.GetTable<WaitRetweet>();
+                table.Where(bt => ulong.Parse(bt.TID) == id)
+                     .ToList()
+                     .ForEach(d =>
+                     table.DeleteOnSubmit(d));
+
+                context.SubmitChanges();
+            }
         }
 
         public Dictionary<string, ulong> getUserList()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                return
+                 context.GetTable<WatchUsers>()
+                 .ToDictionary(bt => bt.UID, bt => ulong.Parse(bt.SINCEID));
+            }
         }
 
         public ulong getHTLMaxid()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                var datas=
+                 context.GetTable<HomeTimeLineMAXID>()
+                 .Select(d=>d.SINCEID)
+                 .ToList();
+
+                if (datas.Count < 1)
+                    return 3200;
+                else
+                    return ulong.Parse(datas.First());
+            }
         }
 
         public void updateUserList(string key, ulong maxid)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+
+                var table = context.GetTable<WatchUsers>();
+                table.Where(bt => bt.UID == key)
+                     .ToList()
+                     .ForEach(d => d.SINCEID =maxid.ToString());
+
+                context.SubmitChanges();
+            }
         }
 
         public void addToRetweet(string tID)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                try
+                {
+                    var table = context.GetTable<WaitRetweet>();
+                    table.InsertOnSubmit(new WaitRetweet() { TID = tID });
+                    context.SubmitChanges();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
         }
 
         public void updateHTLMaxid(ulong newid)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+
+                var table = context.GetTable<HomeTimeLineMAXID>();
+                table.DeleteAllOnSubmit(table);
+                context.SubmitChanges();
+                table.InsertOnSubmit(new HomeTimeLineMAXID() { SINCEID = newid.ToString() });
+                context.SubmitChanges();
+            }
         }
 
         public List<string> getBandIDs()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+
+                return context.GetTable<BandIDs>()
+                    .Select(bi => bi.ID).ToList();
+            }
         }
 
         public Dictionary<string,ulong> getSearchKey()
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+
+                return context.GetTable<SearchKeys>()
+                    .ToDictionary(data => data.KEYWORDS,
+                    data => ulong.Parse(data.SINCEID));
+            }
         }
 
         public void updateSearchKey(string key, ulong v)
         {
-            throw new NotImplementedException();
-        }   
+            using (var context = new DataContext(con))
+            {
+                var table = context.GetTable<SearchKeys>();
+                var datas = table.Where(d => d.KEYWORDS == key)
+                    .ToList();
 
-        public void addWaitDownload(string screenName, ulong statusID, List<string> value)
-        {
-            throw new NotImplementedException();
-        }
+                if(datas.Count > 0)
+                {
+                    datas.First().SINCEID = v.ToString();
+                }
+                else
+                {
+                    table.InsertOnSubmit(new SearchKeys()
+                    {
+                        KEYWORDS=key,
+                        SINCEID=v.ToString()
+                    });
+                }
+                context.SubmitChanges();
+            }
+        }   
 
         public void addWaitRecognizer(WaitRecognizer ul)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                var table = context.GetTable<WaitRecognizer>();
+                table.InsertOnSubmit(ul);
+                context.SubmitChanges();
+            }
         }
 
         public void removeWaitRecognizer(WaitRecognizer nr)
         {
-            throw new NotImplementedException();
+            using (var context = new DataContext(con))
+            {
+                var table = context.GetTable<WaitRecognizer>();
+                table.Where(data =>
+                data.TID == nr.TID &&
+                data.PhotoUrl == nr.PhotoUrl)
+                .ToList()
+                .ForEach(data => table.DeleteOnSubmit(data));
+                context.SubmitChanges();
+            }
         }
     }
 }
