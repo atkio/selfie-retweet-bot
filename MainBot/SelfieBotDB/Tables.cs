@@ -10,8 +10,11 @@ namespace SelfieBot
     [Table(Name = "WaitRecognizer")]
     public class WaitRecognizer
     {
+        [Column(Name = "UID", CanBeNull = false, DbType = "varchar")]
+        public string UID { get; set; }
+
         [Column(Name = "TID", CanBeNull = false, DbType = "varchar")]
-        public long ID { get; set; }
+        public string TID { get; set; }
 
         [Column(Name = "PhotoPath", CanBeNull = false, DbType = "varchar")]
         public string PhotoPath { get; set; }

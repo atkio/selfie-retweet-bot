@@ -36,7 +36,32 @@ namespace SelfieBot
             throw new NotImplementedException();
         }
 
+        public ulong getHTLMaxid()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void updateHTLMaxid(ulong newid)
+        {
+            throw new NotImplementedException();
+        }
+
         public List<string> getBandIDs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<string,ulong> getSearchKey()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void updateSearchKey(string key, ulong v)
+        {
+            throw new NotImplementedException();
+        }   
+
+        public void addWaitDownload(string screenName, ulong statusID, List<string> value)
         {
             throw new NotImplementedException();
         }

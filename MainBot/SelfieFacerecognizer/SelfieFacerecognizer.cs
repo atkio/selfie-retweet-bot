@@ -23,9 +23,7 @@ namespace SelfieBot
 
         static void Main(string[] args)
         {
-#if DEBUG
-            MakeRequestUrl("http://cos.japaninfoz.com/cos/qdig-files/converted-images/_chiiiii_85/med_Cama6d4VAAAmH5K.jpg");
-#else
+
             if (!mutex.WaitOne(TimeSpan.FromSeconds(5), false))
             {
                 Console.WriteLine("Another instance of the app is running. Bye!");
@@ -36,11 +34,11 @@ namespace SelfieBot
             try
             {
                 db.getAllWaitRecognizer()
-                    .ForEach(nr =>
-                         { if( Detect(nr.PhotoPath,nr.PhotoUrl)) db.addToRetweet();
-                           //
-                           db.removeWaitRecognizer(nr);
-                           File.Delete(nr.PhotoPath);
+                    .ForEach(nr =>{
+                        if ( Detect(nr.PhotoPath,nr.PhotoUrl)) db.addToRetweet();
+                        //
+                        db.removeWaitRecognizer(nr);
+                        File.Delete(nr.PhotoPath);
                 });
 
             }
@@ -48,7 +46,6 @@ namespace SelfieBot
             {
                 mutex.ReleaseMutex();
             }
-#endif
 
         }
 

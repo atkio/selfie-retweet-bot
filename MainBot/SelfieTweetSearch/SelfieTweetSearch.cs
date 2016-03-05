@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LinqToTwitter;
-using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 
 
 namespace SelfieBot
@@ -30,14 +23,25 @@ namespace SelfieBot
             var db = new SelfieBotDB();
             try
             {
-                db.getAllWaitRecognizer()
-                    .ForEach(nr =>
+                foreach(var kv in db.getSearchKey())                
+                {
+                    ulong maxid;
+                    var result = GetData(kv.Key, kv.Value,out maxid);
+                    if (result.Count > 0)
                     {
-                        if (Detect(nr.PhotoPath, nr.PhotoUrl)) db.addToRetweet();
-                        //
-                        db.removeWaitRecognizer(nr);
-                        File.Delete(nr.PhotoPath);
-                    });
+                        db.updateSearchKey(kv.Key, maxid);
+                        var todownload=SelfieTweetFilter.GetImageURL(result)
+                             .SelectMany(dkv=>dkv.Value,(s,v)=>
+                              new WaitRecognizer() {
+                                  TID =s.Key.StatusID.ToString(),
+                                  UID =s.Key.ScreenName,
+                                  PhotoUrl =v
+                              }).ToArray();
+
+                        ImageDownloader.Download(todownload);
+                    }
+                        
+                }
 
             }
             finally
@@ -69,11 +73,13 @@ namespace SelfieBot
             }
         }
 
-        public static List<Status> GetData(string regstr, ulong sinceid)
+        public static List<Status> GetData(string regstr, ulong sinceid,out ulong retmaxid)
         {
 
             if (auth == null)
                 prepare();
+
+            retmaxid = sinceid;
 
             var twitterCtx = new TwitterContext(auth);
 
@@ -88,10 +94,13 @@ namespace SelfieBot
               .SingleOrDefault();
 
             if (searchResponse != null && searchResponse.Statuses != null)
-            {
+            {                
                 rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));
-                rslist = rslist.OrderBy(tw => tw.StatusID).ToList();
-
+                retmaxid = rslist.Max(tw => tw.StatusID);
+            }
+            else
+            {
+                return rslist;
             }
 
             while (rslist.Count < 500 && rslist.Count > 0)
@@ -106,7 +115,7 @@ namespace SelfieBot
                 searchResponse =
                      (from search in twitterCtx.Search
                       where search.Type == SearchType.Search &&
-                            search.Query == regstr &&
+                            search.Query == regstr + "  -filter:retweets" &&
                             search.Count == 100 &&
                             search.SinceID == sinceid &&
                             search.MaxID == maxid
@@ -118,15 +127,13 @@ namespace SelfieBot
                     if (searchResponse.Statuses.Count < 1)
                         break;
 
-                    rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));
-                    rslist = rslist.OrderBy(tw => tw.StatusID).ToList();
+                    rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));                  
                 }
                 else
                 {
                     break;
                 }
-            }
-            rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
+            }            
             return SelfieTweetFilter.Filter(rslist);            
         }
 

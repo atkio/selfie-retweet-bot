@@ -71,7 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="SelfieTweetSearch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +79,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ImageDownloader\ImageDownloader.csproj">
+      <Project>{a68f282d-2089-4934-abc3-599968c1488b}</Project>
+      <Name>ImageDownloader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SelfieBotConfig\SelfieBotConfig.csproj">
       <Project>{530a1e8a-730e-476d-b7d2-dde9cc5cc96b}</Project>
       <Name>SelfieBotConfig</Name>

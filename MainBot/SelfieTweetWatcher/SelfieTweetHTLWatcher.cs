@@ -10,7 +10,7 @@ namespace SelfieBot
 {
     class SelfieTweetHTLWatcher
     {
-        static Mutex mutex = new Mutex(false, "japaninfoz.com SelfieTweetWatcher");
+        static Mutex mutex = new Mutex(false, "japaninfoz.com SelfieTweetHTLWatcher");
 
         static void Main(string[] args)
         {
@@ -23,14 +23,17 @@ namespace SelfieBot
             var db = new SelfieBotDB();
             try
             {
-                db.getAllWaitRecognizer()
-                    .ForEach(nr =>
+                ulong HTLMaxid = db.getHTLMaxid();
+                ulong newid;
+                var result = GetHomeTL(HTLMaxid,out newid);
+                if (result.Count > 0)
+                {
+                    db.updateHTLMaxid(newid);
+                    foreach (var rs in SelfieTweetFilter.GetImageURL(result))
                     {
-                        if (Detect(nr.PhotoPath, nr.PhotoUrl)) db.addToRetweet();
-                        //
-                        db.removeWaitRecognizer(nr);
-                        File.Delete(nr.PhotoPath);
-                    });
+                        db.addWaitDownload(rs.Key.ScreenName, rs.Key.StatusID, rs.Value);
+                    }
+                }
 
             }
             finally
@@ -65,11 +68,12 @@ namespace SelfieBot
             }
         }
 
-        public static List<Status> GetHomeTL(ulong sinceid)
+        public static List<Status> GetHomeTL(ulong sinceid,out ulong retmaxid)
         {
             if (auth == null)
                 prepare();
 
+            retmaxid = sinceid;
 
             var twitterCtx = new TwitterContext(auth);
 
@@ -106,8 +110,7 @@ namespace SelfieBot
                     if (searchResponse.Count < 1)
                         break;
 
-                    rslist.AddRange(searchResponse);
-                    rslist = rslist.OrderBy(tw => tw.StatusID).ToList();
+                    rslist.AddRange(searchResponse);                  
                 }
                 else
                 {
@@ -117,6 +120,7 @@ namespace SelfieBot
             }
 
             rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
+            retmaxid = rslist.Max(st => st.StatusID);
             return SelfieTweetFilter.Filter(rslist);
 
         }
