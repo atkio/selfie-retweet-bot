@@ -11,7 +11,7 @@ namespace SelfieBot
     public class ImageDownloader
     {
 
-        static SelfieBotConfig config = new SelfieBotConfig();
+        static SelfieBotConfig config = SelfieBotConfig.Instance;
         public static void Download(params WaitRecognizer[] defs)
         {
             var db = new SelfieBotDB();

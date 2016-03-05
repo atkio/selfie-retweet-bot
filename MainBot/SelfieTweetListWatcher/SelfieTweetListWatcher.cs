@@ -51,7 +51,7 @@ namespace SelfieBot
             }
         }
 
-        static SelfieBotConfig config = new SelfieBotConfig();
+        static SelfieBotConfig config = SelfieBotConfig.Instance;
         private static ApplicationOnlyAuthorizer auth = null;
 
         static void prepare()

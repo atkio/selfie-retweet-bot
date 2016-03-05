@@ -10,12 +10,12 @@ namespace SelfieBot
     public class SelfieTweetFilter
     {
         static SelfieBotDB db = new SelfieBotDB();
-        static SelfieBotConfig config = new SelfieBotConfig();
+        static SelfieBotConfig config = SelfieBotConfig.Instance;
         public static List<Status> Filter(List<Status> src)
         {
            return src
             .AsParallel()
-            .Where(tw => tw.User.ScreenNameResponse != config.MyID() &&
+            .Where(tw => tw.User.ScreenNameResponse != config.MyTwitterID &&
                          !db.getBlockTexts().Any(bt=> tw.Text.Contains(bt)) &&
                          !db.getBandIDs().Contains(tw.User.ScreenNameResponse) &&
                          !db.getNameBlockTexts().Any(bt => tw.User.Name.Contains(bt)) &&                                     

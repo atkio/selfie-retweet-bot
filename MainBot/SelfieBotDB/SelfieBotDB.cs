@@ -12,8 +12,7 @@ namespace SelfieBot
         {
 
         }
-
-        private string dbconnectString;
+        
 
         public List<WaitRecognizer> getAllWaitRecognizer()
         {
@@ -32,6 +31,11 @@ namespace SelfieBot
         }
 
         public List<string> getNameBlockTexts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ulong> getWaitRetweet()
         {
             throw new NotImplementedException();
         }

@@ -18,7 +18,7 @@ namespace SelfieBot
     class SelfieFacerecognizer
     {
         static Mutex mutex = new Mutex(false, "japaninfoz.com SelfieFacerecognizer");
-        static SelfieBotConfig config = new SelfieBotConfig();
+        static SelfieBotConfig config = SelfieBotConfig.Instance;
         private static readonly IFaceServiceClient faceServiceClient = new FaceServiceClient(config.RecognizerKey);
 
         static void Main(string[] args)
