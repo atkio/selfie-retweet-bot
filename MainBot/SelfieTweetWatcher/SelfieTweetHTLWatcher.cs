@@ -29,10 +29,16 @@ namespace SelfieBot
                 if (result.Count > 0)
                 {
                     db.updateHTLMaxid(newid);
-                    foreach (var rs in SelfieTweetFilter.GetImageURL(result))
-                    {
-                        db.addWaitDownload(rs.Key.ScreenName, rs.Key.StatusID, rs.Value);
-                    }
+                    var todownload = SelfieTweetFilter.GetImageURL(result)
+                            .SelectMany(dkv => dkv.Value, (s, v) =>
+                                new WaitRecognizer()
+                             {
+                                 TID = s.Key.StatusID.ToString(),
+                                 UID = s.Key.ScreenName,
+                                 PhotoUrl = v
+                             }).ToArray();
+
+                    ImageDownloader.Download(todownload);
                 }
 
             }

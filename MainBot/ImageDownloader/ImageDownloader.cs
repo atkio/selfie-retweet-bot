@@ -52,7 +52,7 @@ namespace SelfieBot
                 WebClient webClient = new WebClient();
                 Uri address = new Uri(def.PhotoUrl);
                 string fileName = Path.GetFileName(address.LocalPath);
-                def.PhotoPath = config.TempPath + "\\" + fileName;
+                def.PhotoPath = config.RecognizerTempPath + "\\" + fileName;
                 webClient.DownloadFile(address.AbsoluteUri, def.PhotoPath);
                 return true;
             }

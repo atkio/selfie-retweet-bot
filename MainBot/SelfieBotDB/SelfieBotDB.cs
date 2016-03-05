@@ -36,7 +36,17 @@ namespace SelfieBot
             throw new NotImplementedException();
         }
 
+        public Dictionary<string, ulong> getUserList()
+        {
+            throw new NotImplementedException();
+        }
+
         public ulong getHTLMaxid()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void updateUserList(string key, ulong maxid)
         {
             throw new NotImplementedException();
         }

@@ -6,21 +6,20 @@ using System.Threading.Tasks;
 
 namespace SelfieBot
 {
+    
     public class SelfieBotConfig
     {
-        public readonly string AccessToken;
-        public readonly string AccessTokenSecret;
-        public readonly string ConsumerKey;
-        public readonly string ConsumerSecret;
+        public  string AccessToken { get; set; }
+        public  string AccessTokenSecret { get; set; }
+        public  string ConsumerKey { get; set; }
+        public  string ConsumerSecret { get; set; }
+        public  string MyTwitterID { get; set; }
 
-        public string DB { get;  }
-        public string RecognizerKey { get { return "b72a8f29ddc4470897525e21a36b58d3"; } }
+        public string DBType { get; set; }
+        public string DBConnectString { get; set; }
 
-        public string TempPath { get; set; }
-
-        public string MyID()
-        {
-            throw new NotImplementedException();
-        }
+        public string RecognizerKey { get; set; }
+        public string RecognizerTempPath { get; set; }
+       
     }
 }
