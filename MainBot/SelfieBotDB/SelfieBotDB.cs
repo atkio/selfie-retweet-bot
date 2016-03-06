@@ -170,7 +170,7 @@ namespace SelfieBot
             {
 
                 var table = context.GetTable<WaitRetweet>();
-                table.Where(bt => ulong.Parse(bt.TID) == id)
+                table.Where(bt => bt.TID == id.ToString())
                      .ToList()
                      .ForEach(d =>
                      table.DeleteOnSubmit(d));

@@ -72,12 +72,12 @@ namespace SelfieBot
 
                 CvInvoke.EqualizeHist(ugray, ugray);
 
-                //if (aniface.DetectMultiScale(
-                //    ugray,
-                //    1.1,
-                //    10,
-                //    new Size(20, 20)).Count() > 0)
-                //    return false;
+                if (aniface.DetectMultiScale(
+                    ugray,
+                    1.1,
+                    10,
+                    new Size(20, 20)).Count() > 0)
+                    return false;
 
                 Rectangle[] facesDetected = face.DetectMultiScale(
                     ugray,
