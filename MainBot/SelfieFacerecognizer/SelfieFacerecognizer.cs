@@ -35,7 +35,8 @@ namespace SelfieBot
             {
                 db.getAllWaitRecognizer()
                     .ForEach(nr =>{
-                        if ( Detect(nr.PhotoPath,nr.PhotoUrl)) db.addToRetweet(nr.TID);
+                        if ( Detect(nr.PhotoPath,nr.PhotoUrl))
+                            db.addToRetweet(nr.TID);
                         //
                         db.removeWaitRecognizer(nr);
                         File.Delete(nr.PhotoPath);
@@ -71,12 +72,12 @@ namespace SelfieBot
 
                 CvInvoke.EqualizeHist(ugray, ugray);
 
-                if (aniface.DetectMultiScale(
-                    ugray,
-                    1.1,
-                    10,
-                    new Size(20, 20)).Count() > 0)
-                    return false;
+                //if (aniface.DetectMultiScale(
+                //    ugray,
+                //    1.1,
+                //    10,
+                //    new Size(20, 20)).Count() > 0)
+                //    return false;
 
                 Rectangle[] facesDetected = face.DetectMultiScale(
                     ugray,
@@ -125,7 +126,7 @@ namespace SelfieBot
             {
 
                 var faces = new List<Face>(faceServiceClient.DetectAsync(s,true,false, requiedFaceAttributes).Result);
-                return faces.Any(face => face.FaceAttributes.Gender == "famale");
+                return faces.Any(face => face.FaceAttributes.Gender == "female");
             }
 
         }
@@ -141,7 +142,7 @@ namespace SelfieBot
             };
 
             var faces = new List<Face>( faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result );
-            return faces.Any(face => face.FaceAttributes.Gender == "famale");
+            return faces.Any(face => face.FaceAttributes.Gender == "female");
 
         }
     }

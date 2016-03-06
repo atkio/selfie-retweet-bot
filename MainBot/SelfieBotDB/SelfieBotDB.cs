@@ -21,7 +21,7 @@ namespace SelfieBot
         #region Define
         public List<string> getBlockTexts()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 return
                  context.GetTable<BlockText>().
@@ -33,7 +33,7 @@ namespace SelfieBot
 
         public List<string> getNameBlockTexts()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 return
                  context.GetTable<BlockName>().
@@ -44,7 +44,7 @@ namespace SelfieBot
 
         public Dictionary<string, ulong> getUserList()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 return
                  context.GetTable<WatchUsers>()
@@ -54,7 +54,7 @@ namespace SelfieBot
 
         public List<string> getBandIDs()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
 
                 return context.GetTable<BandIDs>()
@@ -64,7 +64,7 @@ namespace SelfieBot
 
         public void setBlockTexts(List<string> values)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 context.GetTable<BlockText>()
                    .InsertAllOnSubmit(values.Select(v => new BlockText() { TEXT = v }));
@@ -75,7 +75,7 @@ namespace SelfieBot
 
         public void setNameBlockTexts(List<string>  values)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {                
                  context.GetTable<BlockName>()
                       .InsertAllOnSubmit(values.Select(v => new BlockName() { NAME = v }));
@@ -85,7 +85,7 @@ namespace SelfieBot
 
         public void setUserList(List<string> values)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {                
                  context.GetTable<WatchUsers>()
                       .InsertAllOnSubmit(values.Select(v => new WatchUsers() { UID =v,SINCEID="3200" }));
@@ -95,7 +95,7 @@ namespace SelfieBot
 
         public void setUserList(Dictionary<string, string> values)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 context.GetTable<WatchUsers>()
                      .InsertAllOnSubmit(values.Select(v => new WatchUsers() { UID = v.Key, SINCEID = v.Value }));
@@ -105,7 +105,7 @@ namespace SelfieBot
 
         public void setBandIDs(List<string> values)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 context.GetTable<BandIDs>()
                      .InsertAllOnSubmit(values.Select(v => new BandIDs() { ID = v }));
@@ -115,7 +115,7 @@ namespace SelfieBot
 
         public Dictionary<string, ulong> getSearchKey()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
 
                 return context.GetTable<SearchKeys>()
@@ -126,7 +126,7 @@ namespace SelfieBot
 
         public void updateSearchKey(string key, ulong v)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 var table = context.GetTable<SearchKeys>();
                 var datas = table.Where(d => d.KEYWORDS == key)
@@ -155,7 +155,7 @@ namespace SelfieBot
        
         public List<ulong> getWaitRetweet()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 return
                  context.GetTable<WaitRetweet>().
@@ -166,7 +166,7 @@ namespace SelfieBot
 
         public void removeRetweet(ulong id)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
 
                 var table = context.GetTable<WaitRetweet>();
@@ -183,7 +183,7 @@ namespace SelfieBot
 
         public void updateUserList(string key, ulong maxid)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
 
                 var table = context.GetTable<WatchUsers>();
@@ -197,7 +197,7 @@ namespace SelfieBot
 
         public void addToRetweet(string tID)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 try
                 {
@@ -215,7 +215,7 @@ namespace SelfieBot
 
         public ulong getHTLMaxid()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 var datas =
                  context.GetTable<HomeTimeLineMAXID>()
@@ -231,7 +231,7 @@ namespace SelfieBot
 
         public void updateHTLMaxid(ulong newid)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
 
                 var table = context.GetTable<HomeTimeLineMAXID>();
@@ -245,7 +245,7 @@ namespace SelfieBot
 
         public List<WaitRecognizer> getAllWaitRecognizer()
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 return
                  context.GetTable<WaitRecognizer>()
@@ -258,7 +258,7 @@ namespace SelfieBot
         {
             try
             {
-                using (var context = new DataContext(con))
+                using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
                 {
                     var table = context.GetTable<WaitRecognizer>();
                     table.InsertOnSubmit(ul);
@@ -273,7 +273,7 @@ namespace SelfieBot
 
         public void removeWaitRecognizer(WaitRecognizer nr)
         {
-            using (var context = new DataContext(con))
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
             {
                 var table = context.GetTable<WaitRecognizer>();
                 table.Where(data =>
