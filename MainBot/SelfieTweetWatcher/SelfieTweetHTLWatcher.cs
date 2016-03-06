@@ -34,8 +34,9 @@ namespace SelfieBot
                                 new WaitRecognizer()
                              {
                                  TID = s.Key.StatusID.ToString(),
-                                 UID = s.Key.ScreenName,
-                                 PhotoUrl = v
+                                 UID = s.Key.User.ScreenNameResponse,
+                                 PhotoUrl = v,
+                                 PhotoPath =""
                              }).ToArray();
 
                     ImageDownloader.Download(todownload);

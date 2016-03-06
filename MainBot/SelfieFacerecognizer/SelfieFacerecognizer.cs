@@ -55,61 +55,70 @@ namespace SelfieBot
         const string eyeFileName = @".\haarcascade_eye.xml";
         const string faceFileName = @".\visionary_FACES_01_LBP_5k_7k_50x50.xml";
 
+
         public static bool Detect(string file,string url)
         {
 
-
-            using (CascadeClassifier aniface = new CascadeClassifier(anifaceFileName))
-            using (CascadeClassifier face = new CascadeClassifier(faceFileName))
-            using (CascadeClassifier face2 = new CascadeClassifier(faceFileName2))
-            using (CascadeClassifier eye = new CascadeClassifier(eyeFileName))
-            using (UMat ugray = new UMat())
+            try
             {
+                using (CascadeClassifier aniface = new CascadeClassifier(anifaceFileName))
+                using (CascadeClassifier face = new CascadeClassifier(faceFileName))
+                using (CascadeClassifier face2 = new CascadeClassifier(faceFileName2))
+                using (CascadeClassifier eye = new CascadeClassifier(eyeFileName))
+                using (UMat ugray = new UMat())
+                {
 
-                Mat image = new Image<Bgr, byte>(file).Mat;
+                    Mat image = new Image<Bgr, byte>(file).Mat;
 
-                CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+                    CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
 
-                CvInvoke.EqualizeHist(ugray, ugray);
+                    CvInvoke.EqualizeHist(ugray, ugray);
 
-                if (aniface.DetectMultiScale(
-                    ugray,
-                    1.1,
-                    10,
-                    new Size(20, 20)).Count() > 0)
+                    if (aniface.DetectMultiScale(
+                        ugray,
+                        1.1,
+                        10,
+                        new Size(20, 20)).Count() > 0)
+                        return false;
+
+                    Rectangle[] facesDetected = face.DetectMultiScale(
+                        ugray,
+                        1.1,
+                        10,
+                        new Size(20, 20));
+
+                    Rectangle[] facesDetected2 = face2.DetectMultiScale(
+                        ugray,
+                        1.1,
+                        10,
+                        new Size(20, 20));
+
+                    var faces = new List<Rectangle>(facesDetected);
+                    faces.AddRange(facesDetected2);
+
+                    if (faces.Count < 1)
+                        return false;
+
+
+                    if (faces.Any(fa =>
+                         eye.DetectMultiScale(
+                                       new UMat(ugray, fa),
+                                       1.1,
+                                       10,
+                                       new Size(20, 20)).Count() > 0
+                    ))
+                        return MakeRequestUrl(url);
+
                     return false;
-
-                Rectangle[] facesDetected = face.DetectMultiScale(
-                    ugray,
-                    1.1,
-                    10,
-                    new Size(20, 20));
-
-                Rectangle[] facesDetected2 = face2.DetectMultiScale(
-                    ugray,
-                    1.1,
-                    10,
-                    new Size(20, 20));
-
-                var faces = new List<Rectangle>(facesDetected);
-                faces.AddRange(facesDetected2);
-
-                if (faces.Count < 1)
-                    return false;
-
-
-                if (faces.Any(fa =>
-                     eye.DetectMultiScale(
-                                   new UMat(ugray, fa),
-                                   1.1,
-                                   10,
-                                   new Size(20, 20)).Count() > 0
-                ))
-                return MakeRequestUrl(url);
-
-                return false;
-
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+
+            
 
         }
 
