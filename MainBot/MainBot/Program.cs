@@ -31,7 +31,7 @@ namespace SelfieBot
             var aTimer = new Timer(interval);
             aTimer.Elapsed += new ElapsedEventHandler((obj,e)=> {
                 var  myProcess = new Process();
-                myProcess.StartInfo.UseShellExecute = false;
+                myProcess.StartInfo.UseShellExecute = true;
                 myProcess.StartInfo.FileName = binfile;
                 myProcess.StartInfo.CreateNoWindow = true;
                 myProcess.Start();
