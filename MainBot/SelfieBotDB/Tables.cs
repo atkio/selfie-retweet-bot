@@ -14,7 +14,7 @@ namespace SelfieBot
         [Column(Name = "PhotoPath", CanBeNull = true, DbType = "varchar")]
         public string PhotoPath { get; set; }
 
-        [Column(Name = "PhotoUrl", CanBeNull = true, DbType = "varchar")]
+        [Column(Name = "PhotoUrl", IsPrimaryKey = true, DbType = "varchar")]
         public string PhotoUrl { get; set; }
     }
 

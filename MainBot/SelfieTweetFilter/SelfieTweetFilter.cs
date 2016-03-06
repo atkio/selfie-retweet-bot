@@ -11,14 +11,17 @@ namespace SelfieBot
     {
         static SelfieBotDB db = new SelfieBotDB();
         static SelfieBotConfig config = SelfieBotConfig.Instance;
+        static List<string> BlockTexts = db.getBlockTexts();
+        static List<string> BandIDs = db.getBandIDs();
+        static List<string> NameBlockTexts = db.getNameBlockTexts();
         public static List<Status> Filter(List<Status> src)
         {
            return src
             .AsParallel()
             .Where(tw => tw.User.ScreenNameResponse != config.MyTwitterID &&
-                         !db.getBlockTexts().Any(bt=> tw.Text.Contains(bt)) &&
-                         !db.getBandIDs().Contains(tw.User.ScreenNameResponse) &&
-                         !db.getNameBlockTexts().Any(bt => tw.User.Name.Contains(bt)) &&                                     
+                         !BlockTexts.Any(bt=> tw.Text.Contains(bt)) &&
+                         !BandIDs.Contains(tw.User.ScreenNameResponse) &&
+                         !NameBlockTexts.Any(bt => tw.User.Name.Contains(bt)) &&                                     
                          tw.RetweetedStatus.StatusID == 0 )                      
            .ToList();            
         }

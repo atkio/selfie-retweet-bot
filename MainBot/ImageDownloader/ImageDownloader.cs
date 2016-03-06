@@ -51,7 +51,10 @@ namespace SelfieBot
             {
                 WebClient webClient = new WebClient();
                 Uri address = new Uri(def.PhotoUrl);
-                string fileName = Path.GetFileName(address.LocalPath);
+                string localpath = address.LocalPath.EndsWith(":orig") ?
+                     address.LocalPath.Substring(0, address.LocalPath.Length -5) :
+                     address.LocalPath;
+                string fileName = Path.GetFileName(localpath);
                 def.PhotoPath = config.RecognizerTempPath + "\\" + fileName;
                 webClient.DownloadFile(address.AbsoluteUri, def.PhotoPath);
                 return true;

@@ -24,8 +24,17 @@ namespace SelfieBot
         public string RecognizerTempPath { get; set; }
 
 
-        public static SelfieBotConfig Instance =
-            JsonConvert.DeserializeObject<SelfieBotConfig>(File.ReadAllText(@".\default.conf"));
+        public static SelfieBotConfig Instance
+        {
+            get
+            {
+                if(_Instance==null) _Instance= JsonConvert.DeserializeObject<SelfieBotConfig>(File.ReadAllText(@".\default.conf"));
+                return _Instance;
+            }
+        }
+
+        private static SelfieBotConfig _Instance = null;
+
 
         //static void Main(string[] args)
         //{

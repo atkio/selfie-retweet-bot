@@ -96,6 +96,16 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SelfieBotConfig\SelfieBotConfig.csproj">
+      <Project>{530a1e8a-730e-476d-b7d2-dde9cc5cc96b}</Project>
+      <Name>SelfieBotConfig</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SelfieBotDB\SelfieBotDB.csproj">
+      <Project>{bcb69fdd-bb54-40e8-95cf-41f67068d4cc}</Project>
+      <Name>SelfieBotDB</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -34,8 +34,9 @@ namespace SelfieBot
                              .SelectMany(dkv=>dkv.Value,(s,v)=>
                               new WaitRecognizer() {
                                   TID =s.Key.StatusID.ToString(),
-                                  UID =s.Key.ScreenName,
-                                  PhotoUrl =v
+                                  UID =s.Key.User.ScreenNameResponse,
+                                  PhotoUrl =v,
+                                  PhotoPath =""
                               }).ToArray();
 
                         ImageDownloader.Download(todownload);
@@ -93,7 +94,7 @@ namespace SelfieBot
                select search)
               .SingleOrDefault();
 
-            if (searchResponse != null && searchResponse.Statuses != null)
+            if (searchResponse != null && searchResponse.Statuses != null && searchResponse.Statuses.Count >0)
             {                
                 rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));
                 retmaxid = rslist.Max(tw => tw.StatusID);

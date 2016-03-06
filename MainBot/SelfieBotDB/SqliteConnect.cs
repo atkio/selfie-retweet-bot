@@ -6,11 +6,71 @@ using System.Threading.Tasks;
 using System.Data.Linq.Mapping;
 using System.Linq;
 using System.Data.SQLite;
+using System.IO;
 
 namespace SelfieBot
 {
-    class SqliteConnect
+    public class BotSqliteConnect
     {
+        public void CreateDB_TABLE()
+        {
+            SQLiteConnection.CreateFile(config.DBConnectString);
+            using (var con =  GetSqlConnection())
+            {
+                try
+                {
+                    using (var command = new SQLiteCommand(con.OpenAndReturn()))
+                    {
+                        
+                        command.CommandText = CreateCommand(typeof(WaitRecognizer));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(WaitRetweet));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(HomeTimeLineMAXID));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(SearchKeys));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(WatchUsers));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(BandIDs));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(BlockText));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(BlockName));
+                        command.ExecuteNonQuery();
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+        }
+
+        public void DB_WriteDefine()
+        {
+
+            SelfieBotDB db = new SelfieBotDB();
+            var lines= File.ReadAllLines(@"D:\Source\Repos\selfie-retweet-bot\Defines\blockKeywords.txt").ToList();
+            db.setBlockTexts(lines);
+
+            lines = File.ReadAllLines(@"D:\Source\Repos\selfie-retweet-bot\Defines\IDBlackList.txt").ToList();
+            db.setBandIDs(lines);
+
+            lines = File.ReadAllLines(@"D:\Source\Repos\selfie-retweet-bot\Defines\IDWhiteList.txt").ToList();
+            db.setUserList(lines);
+
+            lines = File.ReadAllLines(@"D:\Source\Repos\selfie-retweet-bot\Defines\NameBlockKeywords.txt").ToList();
+            db.setNameBlockTexts(lines);
+
+            lines = File.ReadAllLines(@"D:\Source\Repos\selfie-retweet-bot\Defines\SearchKeywords.txt").ToList();
+            foreach(var line in lines)
+            db.updateSearchKey(line,3200);
+
+        }
+
+
 
         static SelfieBotConfig config = SelfieBotConfig.Instance;
         public static SQLiteConnection GetSqlConnection()
