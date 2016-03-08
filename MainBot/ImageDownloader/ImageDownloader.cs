@@ -72,10 +72,13 @@ namespace SelfieBot
         {
             WebClient webClient = new WebClient();
             byte[] downloadedBytes = webClient.DownloadData(uri);
+            int count=0;
             while (downloadedBytes.Length == 0)
             {
+                if(count >4) throw new Exception("can not download");
                 Thread.Sleep(2000);
                 downloadedBytes = webClient.DownloadData(uri);
+                count++;
             }
             Stream file = File.Open(filePath, FileMode.Create);
             file.Write(downloadedBytes, 0, downloadedBytes.Length);
