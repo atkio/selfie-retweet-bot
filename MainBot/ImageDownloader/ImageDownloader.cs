@@ -49,14 +49,15 @@ namespace SelfieBot
         {
             try
             {
-                WebClient webClient = new WebClient();
+                //WebClient webClient = new WebClient();
                 Uri address = new Uri(def.PhotoUrl);
                 string localpath = address.LocalPath.EndsWith(":orig") ?
                      address.LocalPath.Substring(0, address.LocalPath.Length -5) :
                      address.LocalPath;
                 string fileName = Path.GetFileName(localpath);
                 def.PhotoPath = config.RecognizerTempPath + "\\" + fileName;
-                webClient.DownloadFile(address.AbsoluteUri, def.PhotoPath);
+                //webClient.DownloadFile(address.AbsoluteUri, def.PhotoPath);
+                PoolAndDownloadFile(address.AbsoluteUri, def.PhotoPath);
                 return true;
             }
             catch (Exception ex)
@@ -65,6 +66,20 @@ namespace SelfieBot
                 return false;
             }
 
+        }
+        
+        public void PoolAndDownloadFile(Uri uri, string filePath)
+        {
+            WebClient webClient = new WebClient();
+            byte[] downloadedBytes = webClient.DownloadData(uri);
+            while (downloadedBytes.Length == 0)
+            {
+                Thread.Sleep(2000);
+                downloadedBytes = webClient.DownloadData(uri);
+            }
+            Stream file = File.Open(filePath, FileMode.Create);
+            file.Write(downloadedBytes, 0, downloadedBytes.Length);
+            file.Close();
         }
     }
 }
