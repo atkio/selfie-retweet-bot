@@ -127,6 +127,8 @@ namespace SelfieBot
             }
 
             rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
+            if (rslist.Count < 1)
+                return rslist;
             retmaxid = rslist.Max(st => st.StatusID);
             return SelfieTweetFilter.Filter(rslist);
 

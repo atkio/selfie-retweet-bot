@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SelfieBot
@@ -15,12 +16,10 @@ namespace SelfieBot
         public static void Download(params WaitRecognizer[] defs)
         {
             var db = new SelfieBotDB();
-            new List<WaitRecognizer>(defs)
-                .AsParallel()
-                .WithDegreeOfParallelism(5)
-                .ForAll(def => {
-                    if (dl(def)) db.addWaitRecognizer(def);
-                        });
+            foreach (var def in defs)
+            {
+                if (dl(def)) db.addWaitRecognizer(def);
+            }
         }
 
         private static bool dl(WaitRecognizer def)
@@ -29,7 +28,7 @@ namespace SelfieBot
                 return false;
 
 
-            if(def.PhotoUrl.Contains("instagram.com") || def.PhotoUrl.Contains("instagr.am"))
+            if (def.PhotoUrl.Contains("instagram.com") || def.PhotoUrl.Contains("instagr.am"))
             {
                 string str1 = new WebClient().DownloadString(def.PhotoUrl);
                 string str2 = "og:image";
@@ -37,7 +36,7 @@ namespace SelfieBot
                 int num1 = str1.IndexOf(str2) + 11;
                 int num2 = str1.IndexOf(str3, num1 + str2.Length) + 4;
                 def.PhotoUrl = str1.Substring(num1 + str2.Length, num2 - num1 - str2.Length);
-                
+
                 return savefile(def);
             }
 
@@ -52,12 +51,12 @@ namespace SelfieBot
                 //WebClient webClient = new WebClient();
                 Uri address = new Uri(def.PhotoUrl);
                 string localpath = address.LocalPath.EndsWith(":orig") ?
-                     address.LocalPath.Substring(0, address.LocalPath.Length -5) :
+                     address.LocalPath.Substring(0, address.LocalPath.Length - 5) :
                      address.LocalPath;
                 string fileName = Path.GetFileName(localpath);
                 def.PhotoPath = config.RecognizerTempPath + "\\" + fileName;
                 //webClient.DownloadFile(address.AbsoluteUri, def.PhotoPath);
-                PoolAndDownloadFile(address.AbsoluteUri, def.PhotoPath);
+                PoolAndDownloadFile(address, def.PhotoPath);
                 return true;
             }
             catch (Exception ex)
@@ -67,15 +66,15 @@ namespace SelfieBot
             }
 
         }
-        
-        public void PoolAndDownloadFile(Uri uri, string filePath)
+
+        static void PoolAndDownloadFile(Uri uri, string filePath)
         {
             WebClient webClient = new WebClient();
             byte[] downloadedBytes = webClient.DownloadData(uri);
-            int count=0;
+            int count = 0;
             while (downloadedBytes.Length == 0)
             {
-                if(count >4) throw new Exception("can not download");
+                if (count > 4) throw new Exception("can not download");
                 Thread.Sleep(2000);
                 downloadedBytes = webClient.DownloadData(uri);
                 count++;
