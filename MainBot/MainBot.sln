@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfieFacerecognizer", "Sel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfieTweetListWatcher", "SelfieTweetListWatcher\SelfieTweetListWatcher.csproj", "{BEB0C034-8A39-4EB5-B214-146FDBAFDAF0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankTrainer", "RankTrainer\RankTrainer.csproj", "{BC81E877-2DF9-4200-90B4-4283C84FABB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,14 @@ Global
 		{BEB0C034-8A39-4EB5-B214-146FDBAFDAF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEB0C034-8A39-4EB5-B214-146FDBAFDAF0}.Release|x64.ActiveCfg = Release|Any CPU
 		{BEB0C034-8A39-4EB5-B214-146FDBAFDAF0}.Release|x64.Build.0 = Release|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Debug|x64.Build.0 = Debug|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|x64.ActiveCfg = Release|Any CPU
+		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

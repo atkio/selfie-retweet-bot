@@ -23,6 +23,12 @@ namespace SelfieBot
     {
         [Column(Name = "TID", IsPrimaryKey = true, DbType = "varchar")]
         public string TID { get; set; }
+
+        [Column(Name = "UID", CanBeNull = false, DbType = "varchar")]
+        public string UID { get; set; }
+
+        [Column(Name = "RANK", CanBeNull = false, DbType = "INT")]
+        public string RANK { get; set; }
     }
 
     [Table(Name = "HomeTimeLineMAXID")]

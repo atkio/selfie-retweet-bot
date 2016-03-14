@@ -30,7 +30,9 @@ namespace SelfieBot
 
             if (def.PhotoUrl.Contains("instagram.com") || def.PhotoUrl.Contains("instagr.am"))
             {
-                string str1 = new WebClient().DownloadString(def.PhotoUrl);
+                try
+                {
+                    string str1 = new WebClient().DownloadString(def.PhotoUrl);
                 string str2 = "og:image";
                 string str3 = ".jpg";
                 int num1 = str1.IndexOf(str2) + 11;
@@ -38,6 +40,12 @@ namespace SelfieBot
                 def.PhotoUrl = str1.Substring(num1 + str2.Length, num2 - num1 - str2.Length);
 
                 return savefile(def);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
             }
 
             def.PhotoUrl = def.PhotoUrl + ":orig";

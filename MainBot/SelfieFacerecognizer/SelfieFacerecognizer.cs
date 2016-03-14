@@ -12,6 +12,7 @@ using System.Web;
 using Microsoft.ProjectOxford.Face;
 using Microsoft.ProjectOxford.Face.Contract;
 using System.IO;
+using Emgu.CV.Face;
 
 namespace SelfieBot
 {
@@ -34,13 +35,14 @@ namespace SelfieBot
             try
             {
                 db.getAllWaitRecognizer()
-                    .ForEach(nr =>{
-                        if ( Detect(nr.PhotoPath,nr.PhotoUrl))
+                    .ForEach(nr =>
+                    {
+                        if (Detect(nr.PhotoPath, nr.PhotoUrl))
                             db.addToRetweet(nr.TID);
                         //
                         db.removeWaitRecognizer(nr);
                         File.Delete(nr.PhotoPath);
-                });
+                    });
 
             }
             finally
@@ -56,7 +58,7 @@ namespace SelfieBot
         const string faceFileName = @".\visionary_FACES_01_LBP_5k_7k_50x50.xml";
 
 
-        public static bool Detect(string file,string url)
+        public static bool Detect(string file, string url)
         {
 
             try
@@ -118,9 +120,40 @@ namespace SelfieBot
                 return false;
             }
 
-            
+
 
         }
+
+
+        static int Predict(string file)
+        {
+            FisherFaceRecognizer facerco = new FisherFaceRecognizer();
+            facerco.Load(@"trained.data");
+            using (CascadeClassifier face2 = new CascadeClassifier(faceFileName2))
+            using (UMat ugray = new UMat())
+            {
+
+
+
+                Mat image = new Image<Bgr, byte>(file).Mat;
+
+                CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+                CvInvoke.EqualizeHist(ugray, ugray);
+                var faces = face2.DetectMultiScale(
+              ugray,
+              1.1,
+              10,
+              new Size(300, 300));
+                if (faces.Count() < 1)
+                    return 0;
+                CvInvoke.Resize(ugray, image, new Size(300, 300));
+                var res = facerco.Predict(image);
+                return res.Label;
+            }
+
+        }
+
+
 
         static bool MakeRequestLocalFile(String file)
         {
@@ -134,13 +167,13 @@ namespace SelfieBot
             using (Stream s = File.OpenRead(file))
             {
 
-                var faces = new List<Face>(faceServiceClient.DetectAsync(s,true,false, requiedFaceAttributes).Result);
+                var faces = new List<Face>(faceServiceClient.DetectAsync(s, true, false, requiedFaceAttributes).Result);
                 return faces.Any(face => face.FaceAttributes.Gender == "female");
             }
 
         }
 
-        static  bool MakeRequestUrl(string surl)
+        static bool MakeRequestUrl(string surl)
         {
             var requiedFaceAttributes = new FaceAttributeType[] {
               //  FaceAttributeType.Age,
@@ -150,7 +183,7 @@ namespace SelfieBot
                 //FaceAttributeType.HeadPose
             };
 
-            var faces = new List<Face>( faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result );
+            var faces = new List<Face>(faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result);
             return faces.Any(face => face.FaceAttributes.Gender == "female");
 
         }
