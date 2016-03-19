@@ -284,5 +284,39 @@ namespace SelfieBot
                 context.SubmitChanges();
             }
         }
+
+
+        public List<ListTimeLineMAXID> getLTLMaxid()
+        {
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
+            {
+                return
+                 context.GetTable<ListTimeLineMAXID>()
+                     .ToList();
+            }
+        }
+
+        public void updateLTLMaxid(ListTimeLineMAXID data)
+        {
+            using (var context = new DataContext(BotSqliteConnect.GetSqlConnection()))
+            {
+                var table=
+                 context.GetTable<ListTimeLineMAXID>();
+
+                var datas = table.Where(d => d.UID ==data.UID && d.LIST == data.LIST )
+                   .ToList();
+
+                if (datas.Count > 0)
+                {
+                    datas.First().SINCEID = data.SINCEID;
+                }
+                else
+                {
+                    table.InsertOnSubmit(data);
+                }
+                context.SubmitChanges();
+
+            }
+        }
     }
 }

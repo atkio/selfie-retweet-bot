@@ -16,24 +16,22 @@ namespace RankTrainer
     {
         static void Main(string[] args)
         {
-            prdict();
-        }
+            prdict()
+             ;        }
 
         const string faceFileName2 = @".\haarcascade_frontalface_default.xml";
-        const string cos = @"\\JAPANINFOZ\Share\cos\_maochun";
+        const string cos = @"\\JAPANINFOZ\Share\cos\asagawoblog";
         static void prdict()
         {
-            FisherFaceRecognizer facerco = new FisherFaceRecognizer();
+            FaceRecognizer facerco = new EigenFaceRecognizer(80, double.PositiveInfinity);
             facerco.Load(@"trained.data");
             foreach (var file in Directory.GetFiles(cos, "*.jpg"))
             {
                 using (CascadeClassifier face2 = new CascadeClassifier(faceFileName2))
                 using (UMat ugray = new UMat())
-                {
-
-
-
-                    Mat image = new Image<Bgr, byte>(file).Mat;
+                using (Image<Bgr, byte> Imag = new Image<Bgr, byte>(file))
+                using (Mat image = Imag.Mat)
+                {                    
 
                     CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
 
@@ -45,13 +43,54 @@ namespace RankTrainer
                   new Size(300, 300));
                     if (faces.Count() < 1)
                         continue;
-                    CvInvoke.Resize(ugray,image, new Size(300,300));
-                   var res= facerco.Predict(image);
-                    Console.WriteLine("label:"+res.Label);
+                    CvInvoke.Resize(ugray, image, new Size(300, 300));
+                    var res = facerco.Predict(image);
+                   
+                    Console.WriteLine("label:"+res.Label+"|dis:"+res.Distance+"|file:"+file);
                 }
 
             }
             
+        }
+
+        static void train2()
+        {
+            FaceRecognizer recognizer = new EigenFaceRecognizer(120, double.PositiveInfinity);
+            var files = Directory.GetFiles(@"D:\mydata").ToList();
+
+            int[] labels = new int[files.Count];
+            Image<Gray, Byte>[] images = new Image<Gray, byte>[files.Count];
+
+            int i = 0;
+            foreach (var file in files)
+            {
+                using (UMat ugray = new UMat())
+                using (Mat image1 = new Mat(file, LoadImageType.Color))
+                using (Mat image = new Mat(300, 300, image1.Depth, image1.NumberOfChannels))
+                {
+                    try
+                    {                        
+                        CvInvoke.Resize(image1, image, image.Size, 0.5, 0.5, Inter.Cubic);
+
+                        CvInvoke.CvtColor(image, ugray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+
+                        //normalizes brightness and increases contrast of the image
+                        CvInvoke.EqualizeHist(ugray, ugray);
+
+
+                        images[i] = ugray.ToImage<Gray, Byte>();
+                        labels[i] = i+1;
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+                }
+                i++;
+            }
+
+            recognizer.Train<Gray, Byte>(images, labels);
+            recognizer.Save(@"trained.data");
         }
 
         static void train()

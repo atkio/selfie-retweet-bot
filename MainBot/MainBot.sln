@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfieTweetListWatcher", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankTrainer", "RankTrainer\RankTrainer.csproj", "{BC81E877-2DF9-4200-90B4-4283C84FABB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfieTweetUserWatcher", "SelfieTweetUserWatcher\SelfieTweetUserWatcher.csproj", "{C02CE68F-E1E9-429D-A030-2C1248CE6915}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,14 @@ Global
 		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|x64.ActiveCfg = Release|Any CPU
 		{BC81E877-2DF9-4200-90B4-4283C84FABB8}.Release|x64.Build.0 = Release|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Debug|x64.Build.0 = Debug|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Release|x64.ActiveCfg = Release|Any CPU
+		{C02CE68F-E1E9-429D-A030-2C1248CE6915}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

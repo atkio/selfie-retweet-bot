@@ -23,13 +23,14 @@ namespace SelfieBot
             var db = new SelfieBotDB();
             try
             {
-                foreach (var kv in db.getUserList())
+                foreach (var def in db.getLTLMaxid())
                 {
                     ulong maxid;
-                    var result = GetData(kv.Key, kv.Value, out maxid);
+                    var result = GetData(def.UID,def.LIST,ulong.Parse(def.SINCEID),out maxid);
                     if (result.Count > 0)
                     {
-                        db.updateUserList(kv.Key, maxid);
+                        def.SINCEID = maxid.ToString();
+                        db.updateLTLMaxid(def);
                         var todownload = SelfieTweetFilter.GetImageURL(result)
                              .SelectMany(dkv => dkv.Value, (s, v) =>
                                  new WaitRecognizer()
@@ -74,62 +75,72 @@ namespace SelfieBot
             }
         }
 
-        public static List<Status> GetData(string uid, ulong sinceid,out ulong retmaxid)
+        public static List<Status> GetData(string ownerScreenName, string slug, ulong sinceID, out ulong retmaxid)
         {
             if (auth == null)
                 prepare();
 
-            retmaxid = sinceid;
+            retmaxid = sinceID;
 
             var twitterCtx = new TwitterContext(auth);
 
-            var rslist = new List<Status>();
-            var searchResponse =
-               twitterCtx.Status
-                    .Where(tweet =>
-                        tweet.Type == 0 &&
-                        tweet.ScreenName == uid &&
-                        tweet.SinceID == sinceid &&
-                        tweet.Count == 200 &&
-                        tweet.IncludeRetweets == false &&
-                        tweet.IncludeEntities == true)                
-                .ToList();
-            
-            rslist.AddRange(searchResponse);
+            int maxStatuses = 3200;
+            int lastStatusCount = 0;
+                   
+            ulong maxID;
+            int count = 200;
+            var statusList = new List<Status>();
 
+            // only count
+            var listResponse =
+                (from list in twitterCtx.List
+                 where list.Type == ListType.Statuses &&
+                       list.OwnerScreenName == ownerScreenName &&
+                       list.Slug == slug &&
+                       list.Count == count
+                 select list)
+                .SingleOrDefault();
 
-            while (rslist.Count < 500 && rslist.Count > 0)
+            if (listResponse != null && listResponse.Statuses != null)
             {
-                if (rslist.Min(st => st.StatusID) < sinceid)
-                    break;
+                List<Status> newStatuses = listResponse.Statuses;
+                // first tweet processed on current query
+                maxID = newStatuses.Min(status => status.StatusID) - 1;
+                statusList.AddRange(newStatuses);
 
-                ulong maxid = rslist.Min(st => st.StatusID) - 1;
+                do
+                {
+                    // now add sinceID and maxID
+                    listResponse =                     
+                        (from list in twitterCtx.List
+                         where list.Type == ListType.Statuses &&
+                               list.OwnerScreenName == ownerScreenName &&
+                               list.Slug == slug &&
+                               list.Count == count &&
+                               list.SinceID == sinceID &&
+                               list.MaxID == maxID
+                         select list)
+                        .SingleOrDefault();
 
-                Thread.Sleep(10 * 1000);
+                    if (listResponse == null)
+                        break;
 
-                searchResponse =
-                twitterCtx.Status
-                   .Where(tweet =>
-                       tweet.Type == 0 &&
-                       tweet.ScreenName == uid &&
-                       tweet.SinceID == sinceid &&
-                       tweet.Count == 200 &&
-                       tweet.IncludeRetweets == false &&
-                       tweet.IncludeEntities == true &&
-                       tweet.MaxID == maxid)
-               .OrderBy(tweet => tweet.StatusID)
-               .ToList();
+                    newStatuses = listResponse.Statuses;
+                    // first tweet processed on current query
+                    maxID = newStatuses.Min(status => status.StatusID) - 1;
+                    statusList.AddRange(newStatuses);
 
-                if (searchResponse.Count < 1)
-                    break;
-
-                rslist.AddRange(searchResponse.Where(st => st.StatusID > sinceid));
-                rslist = rslist.OrderBy(tw => tw.StatusID).ToList();
+                    lastStatusCount = newStatuses.Count;
+                }
+                while (lastStatusCount != 0 && statusList.Count < maxStatuses);
+              
             }
+            statusList = statusList.Where(st => st.StatusID > sinceID).ToList();
 
-            rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
-            retmaxid = rslist.Max(st => st.StatusID);
-            return SelfieTweetFilter.Filter(rslist);
+            if(statusList.Count >0)
+                retmaxid = statusList.Max(st => st.StatusID);
+
+            return SelfieTweetFilter.Filter(statusList);
 
 
         }

@@ -38,6 +38,20 @@ namespace SelfieBot
         public string SINCEID { get; set; }
     }
 
+    [Table(Name = "ListTimeLineMAXID")]
+    public class ListTimeLineMAXID
+    {
+        [Column(Name = "UID", IsPrimaryKey = true, DbType = "varchar")]
+        public string UID { get; set; }
+
+        [Column(Name = "LIST", IsPrimaryKey = true, DbType = "varchar")]
+        public string LIST { get; set; }
+
+        [Column(Name = "SINCEID", CanBeNull = false, DbType = "varchar")]
+        public string SINCEID { get; set; }
+    }
+
+
     [Table(Name = "SearchKeys")]
     public class SearchKeys
     {

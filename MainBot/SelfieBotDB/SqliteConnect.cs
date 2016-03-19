@@ -12,6 +12,29 @@ namespace SelfieBot
 {
     public class BotSqliteConnect
     {
+        public void CreateDB_TABLE2()
+        {
+            SQLiteConnection.CreateFile(config.DBConnectString);
+            using (var con = GetSqlConnection())
+            {
+                try
+                {
+                    using (var command = new SQLiteCommand(con.OpenAndReturn()))
+                    {
+
+                        command.CommandText = CreateCommand(typeof(WaitRecognizer));
+                        command.ExecuteNonQuery();
+                        
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+        }
+
         public void CreateDB_TABLE()
         {
             SQLiteConnection.CreateFile(config.DBConnectString);
