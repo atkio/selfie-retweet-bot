@@ -22,6 +22,9 @@ namespace SelfieBot
 
         public string RecognizerKey { get; set; }
         public string RecognizerTempPath { get; set; }
+        public string RecognizerService { get; set; }
+
+        public Dictionary<string,int> Bot { get; set; }
 
 
         public static SelfieBotConfig Instance
@@ -36,9 +39,9 @@ namespace SelfieBot
         private static SelfieBotConfig _Instance = null;
 
 
-        //static void Main(string[] args)
-        //{
-        //    File.WriteAllText(@".\default.conf", JsonConvert.SerializeObject(new SelfieBotConfig(),Formatting.Indented));
-        //}
+        public  void init()
+        {
+            File.WriteAllText(@".\init.conf", JsonConvert.SerializeObject(this, Formatting.Indented));
+        }
     }
 }

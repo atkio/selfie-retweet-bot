@@ -12,29 +12,6 @@ namespace SelfieBot
 {
     public class BotSqliteConnect
     {
-        public void CreateDB_TABLE2()
-        {
-            SQLiteConnection.CreateFile(config.DBConnectString);
-            using (var con = GetSqlConnection())
-            {
-                try
-                {
-                    using (var command = new SQLiteCommand(con.OpenAndReturn()))
-                    {
-
-                        command.CommandText = CreateCommand(typeof(WaitRecognizer));
-                        command.ExecuteNonQuery();
-                        
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
-        }
-
         public void CreateDB_TABLE()
         {
             SQLiteConnection.CreateFile(config.DBConnectString);
@@ -44,7 +21,7 @@ namespace SelfieBot
                 {
                     using (var command = new SQLiteCommand(con.OpenAndReturn()))
                     {
-                        
+
                         command.CommandText = CreateCommand(typeof(WaitRecognizer));
                         command.ExecuteNonQuery();
                         command.CommandText = CreateCommand(typeof(WaitRetweet));
@@ -60,6 +37,8 @@ namespace SelfieBot
                         command.CommandText = CreateCommand(typeof(BlockText));
                         command.ExecuteNonQuery();
                         command.CommandText = CreateCommand(typeof(BlockName));
+                        command.ExecuteNonQuery();
+                        command.CommandText = CreateCommand(typeof(ListTimeLineMAXID));
                         command.ExecuteNonQuery();
                     }
 

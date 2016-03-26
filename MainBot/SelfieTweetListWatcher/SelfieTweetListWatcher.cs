@@ -19,8 +19,9 @@ namespace SelfieBot
                 Console.WriteLine("Another instance of the app is running. Bye!");
                 return;
             }
+          
+            var db = new SelfieBotDB();          
 
-            var db = new SelfieBotDB();
             try
             {
                 foreach (var def in db.getLTLMaxid())
@@ -40,7 +41,7 @@ namespace SelfieBot
                                      PhotoUrl = v
                                  }).ToArray();
 
-                        ImageDownloader.Download(todownload);
+                       ImageDownloader.Download(todownload);
                     }
 
                 }
@@ -122,7 +123,7 @@ namespace SelfieBot
                          select list)
                         .SingleOrDefault();
 
-                    if (listResponse == null)
+                    if (listResponse == null || listResponse.Statuses.Count <1)
                         break;
 
                     newStatuses = listResponse.Statuses;

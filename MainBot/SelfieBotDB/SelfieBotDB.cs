@@ -202,7 +202,7 @@ namespace SelfieBot
                 try
                 {
                     var table = context.GetTable<WaitRetweet>();
-                    table.InsertOnSubmit(new WaitRetweet() { TID = tID });
+                    table.InsertOnSubmit(new WaitRetweet() { TID = tID ,RANK= "3", UID = tID });
                     context.SubmitChanges();
                 }
                 catch(Exception e)

@@ -37,11 +37,27 @@ namespace SelfieBot
                 db.getAllWaitRecognizer()
                     .ForEach(nr =>
                     {
-                        if (Detect(nr.PhotoPath, nr.PhotoUrl))
-                            db.addToRetweet(nr.TID);
-                        //
-                        db.removeWaitRecognizer(nr);
-                        File.Delete(nr.PhotoPath);
+                        if (IsFileLocked(nr.PhotoPath))
+                            return;
+
+                        if(!File.Exists(nr.PhotoPath))
+                            db.removeWaitRecognizer(nr);
+
+                        try
+                        {
+                            if (Detect(nr.PhotoPath, nr.PhotoUrl))
+                                db.addToRetweet(nr.TID);
+                        }
+                        catch
+                        {
+
+                        }
+                        finally
+                        {
+                            //
+                            db.removeWaitRecognizer(nr);
+                            File.Delete(nr.PhotoPath);
+                        }
                     });
 
             }
@@ -50,6 +66,32 @@ namespace SelfieBot
                 mutex.ReleaseMutex();
             }
 
+        }
+
+        protected static bool IsFileLocked(string file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = File.Open(file,FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
 
         const string anifaceFileName = @".\lbpcascade_animeface.xml";
@@ -109,7 +151,13 @@ namespace SelfieBot
                                        10,
                                        new Size(20, 20)).Count() > 0
                     ))
-                        return MakeRequestUrl(url);
+                    {
+                        if (SelfieBotConfig.Instance.RecognizerService == "true")
+                            return MakeRequestUrl(url);
+                        else
+                            return true;
+                    }
+                      
 
                     return false;
                 }
