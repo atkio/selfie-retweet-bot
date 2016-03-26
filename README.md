@@ -4,7 +4,7 @@ a selfie retweet bot<br>
 部署（需要dotnet4.5.2）
 ===
 ```markdown
-1.下载EXE中的全部文件
+1.下载release***.7z文件
 执行文件说明
 *MainBot：主程序
 *SelfieFacerecognizer：人脸识别
