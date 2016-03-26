@@ -12,6 +12,7 @@ a selfie retweet bot<br>
 *SelfieTweetHTLWatcher：hometimeline搜索器
 *SelfieTweetListWatcher：list搜索器
 *SelfieTweetSearch：search关键字搜索器
+*SelfieTweetUserWatcher：特定用户搜索器
 2.修改default.conf定义文件
 *AccessToken：推特的AccessToken
 *AccessTokenSecret：AccessTokenSecret
