@@ -3,7 +3,7 @@ a selfie retweet bot<br>
 ===
 部署
 ===
-```markdown
+
 1.下载EXE中的全部文件
 2.修改default.conf定义文件
 *AccessToken：推特的AccessToken
@@ -20,7 +20,7 @@ a selfie retweet bot<br>
 3.定义文件修改完后，执行mainbot一次，会生成数据库SelfBot.sqlite
 4.打开sqlite编辑器，添加定义
 *
-```
+
 ===
 原理
 ===
