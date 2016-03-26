@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,12 @@ namespace SelfieBot
         static List<Process> currentProcess = new List<Process>();
         static void Main(string[] args)
         {
+            if (!File.Exists(SelfieBotConfig.Instance.DBConnectString))
+            {
+                new BotSqliteConnect().CreateDB_TABLE();
+                new BotSqliteConnect().DB_WriteDefine();
+            }
+
             var timers=
                 SelfieBotConfig.Instance.Bot.Select(kv => CreateProcTimer(kv.Key, kv.Value * 60 * 1000)).ToList();
             //var aTimer1 = CreateProcTimer(@".\SelfieTweetSearch.exe", 13*60*1000);
