@@ -36,6 +36,9 @@ namespace SelfieBot
             }
         }
 
+        public string AdultCheck { get; set; }
+        public string AdultCheckKey { get; set; }
+
         private static SelfieBotConfig _Instance = null;
 
 

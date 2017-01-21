@@ -13,6 +13,8 @@ using Microsoft.ProjectOxford.Face;
 using Microsoft.ProjectOxford.Face.Contract;
 using System.IO;
 using Emgu.CV.Face;
+using System.Threading.Tasks;
+using SelfieFacerecognizer;
 
 namespace SelfieBot
 {
@@ -144,13 +146,13 @@ namespace SelfieBot
                         return false;
 
 
-                    if (faces.Any(fa =>
-                         eye.DetectMultiScale(
-                                       new UMat(ugray, fa),
-                                       1.1,
-                                       10,
-                                       new Size(20, 20)).Count() > 0
-                    ))
+                    //if (faces.Any(fa =>
+                    //     eye.DetectMultiScale(
+                    //                   new UMat(ugray, fa),
+                    //                   1.1,
+                    //                   10,
+                    //                   new Size(20, 20)).Count() > 0
+                    //))
                     {
                         if (SelfieBotConfig.Instance.RecognizerService == "true")
                             return MakeRequestUrl(url);
@@ -232,8 +234,19 @@ namespace SelfieBot
             };
 
             var faces = new List<Face>(faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result);
-            return faces.Any(face => face.FaceAttributes.Gender == "female");
+            if (!faces.Any(face => face.FaceAttributes.Gender == "female"))
+                return false;
+
+            if (SelfieBotConfig.Instance.AdultCheck == "true")
+                return !VisionClent.AnalyzeUrlAdult(surl, SelfieBotConfig.Instance.AdultCheckKey);
+
+            return false;
+
 
         }
+
+     
+        
+
     }
 }
