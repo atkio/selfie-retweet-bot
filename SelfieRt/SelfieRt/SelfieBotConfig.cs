@@ -73,7 +73,7 @@ namespace SelfieRt
         /// </summary>
         public string PhotoTempPath { get; set; }
         
-        public Boolean UseMicrosoftCognitiveServices { get; set; }
+        public CognitiveServicesType MicrosoftCognitiveServices { get; set; }
 
         public static SelfieBotConfig Instance
         {
