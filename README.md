@@ -1,5 +1,6 @@
 a selfie retweet bot<br>
 自拍转推机器人
+
 >目前支持windows，linux（mono x86）
 >TODO:支持ARM机器（树莓派等）
 
