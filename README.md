@@ -1,8 +1,7 @@
 a selfie retweet bot<br>
 自拍转推机器人
-===
-跨平台：目前支持windows，linux（mono x86）<br>
-TODO:支持ARM机器（树莓派等）
+-目前支持windows，linux（mono x86）<br>
+-TODO:支持ARM机器（树莓派等）
 ===
 编译
 ===
