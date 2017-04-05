@@ -110,16 +110,22 @@ namespace SelfieRT.Tweet
 
                 Thread.Sleep(10 * 1000);
 
-                searchResponse =
-                     (from search in twitterCtx.Search
-                      where search.Type == SearchType.Search &&
-                            search.Query == regstr + "  -filter:retweets" &&
-                            search.Count == 100 &&
-                            search.SinceID == sinceid &&
-                            search.MaxID == maxid
-                      select search)
-                     .SingleOrDefault();
-
+                try
+                {
+                    searchResponse =
+                         (from search in twitterCtx.Search
+                          where search.Type == SearchType.Search &&
+                                search.Query == regstr + "  -filter:retweets" &&
+                                search.Count == 100 &&
+                                search.SinceID == sinceid &&
+                                search.MaxID == maxid
+                          select search)
+                         .SingleOrDefault();
+                }
+                catch
+                {
+                    searchResponse = null;
+                }
                 if (searchResponse != null && searchResponse.Statuses != null)
                 {
                     if (searchResponse.Statuses.Count < 1)
