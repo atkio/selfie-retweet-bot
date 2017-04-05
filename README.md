@@ -2,6 +2,11 @@ a selfie retweet bot<br>
 自拍转推机器人
 跨平台：目前支持windows，linux（mono x86）
 ===
+编译
+===
+
+
+===
 部署（需要dotnet4.5.2）
 ===
 ```markdown
