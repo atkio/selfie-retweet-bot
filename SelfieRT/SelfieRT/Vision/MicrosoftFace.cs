@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace SelfieRT
 {
@@ -48,12 +49,20 @@ namespace SelfieRT
                 //FaceAttributeType.FacialHair,
                 //FaceAttributeType.HeadPose
             };
-            using (Stream s = File.OpenRead(file))
+            try
             {
+                Thread.Sleep(3 * 1000);
+                using (Stream s = File.OpenRead(file))
+                {
 
-                var faces = new List<Face>(faceServiceClient.DetectAsync(s, true, false, requiedFaceAttributes).Result);
-                return faces.Any(face => face.FaceAttributes.Gender == "female" &&
-                                         face.FaceAttributes.Age < 30);
+                    var faces = new List<Face>(faceServiceClient.DetectAsync(s, true, false, requiedFaceAttributes).Result);
+                    return faces.Any(face => face.FaceAttributes.Gender == "female" &&
+                                             face.FaceAttributes.Age < 30);
+                }
+            }
+            catch
+            {
+                return false;
             }
 
         }
@@ -67,10 +76,17 @@ namespace SelfieRT
                 //FaceAttributeType.FacialHair,
                 //FaceAttributeType.HeadPose
             };
-
-            var faces = new List<Microsoft.ProjectOxford.Face.Contract.Face>(faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result);
-            return faces.Any(face => face.FaceAttributes.Gender == "female" &&
-                                         face.FaceAttributes.Age < 30);
+            try
+            {
+                Thread.Sleep(3 * 1000);
+                var faces = new List<Microsoft.ProjectOxford.Face.Contract.Face>(faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result);
+                return faces.Any(face => face.FaceAttributes.Gender == "female" &&
+                                             face.FaceAttributes.Age < 30);
+            }
+            catch
+            {
+                return false;
+            }
 
         }
 
