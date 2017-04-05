@@ -23,7 +23,7 @@ namespace SelfieRT
         const string DBFile = "SelfieBot.sqlite";
         public static IDbConnection GetSqlConnection()
         {
-            return new SqliteConnection("URI=file:" + DBFile + ";Version=3;");
+            return new SqliteConnection("URI=file:" + DBFile + ";DbLinqProvider=sqlite;");
         }
 
 
@@ -32,7 +32,7 @@ namespace SelfieRT
         const string BlockText = "CREATE TABLE `BlockText` (`TEXT`	varchar(100),PRIMARY KEY(`TEXT`));";
         const string HomeTimeLineMAXID = "CREATE TABLE `HomeTimeLineMAXID` (`SINCEID`	varchar(100),PRIMARY KEY(`SINCEID`));";
         const string SearchKeys = "CREATE TABLE `SearchKeys` (`KEYWORDS`	varchar(100),`SINCEID`	varchar(100) NOT NULL,PRIMARY KEY(`KEYWORDS`));";
-        const string WaitRecognizer = "CREATE TABLE `WaitRecognizer` (`UID`	varchar(100) NOT NULL,`TID`	varchar(100) NOT NULL,`Tweet`	varchar(255),`PhotoPath`	varchar(100),`PhotoUrl`	varchar(100),PRIMARY KEY(`PhotoUrl`));";
+        const string WaitRecognizer = "CREATE TABLE `WaitRecognizer` (`UID`	varchar(100) NOT NULL,`TID`	varchar(100) NOT NULL,`Tweet`	varchar(100),`PhotoPath`	varchar(100),`PhotoUrl`	varchar(100),PRIMARY KEY(`PhotoUrl`));";
         const string WaitRetweet = "CREATE TABLE `WaitRetweet` (`TID`	varchar(100),`UID`	varchar(100),`RANK`	INTEGER,PRIMARY KEY(`TID`));";
         const string WatchUsers = "CREATE TABLE `WatchUsers` (`UID`	varchar(100),`SINCEID`	varchar(100) NOT NULL,PRIMARY KEY(`UID`));";
 
