@@ -1,4 +1,4 @@
-using SelfieRT.Tweet;
+﻿using SelfieRT.Tweet;
 using System;
 using System.IO;
 
@@ -64,15 +64,10 @@ namespace SelfieRT
                     {
                         if (instance == null)
                         {
-<<<<<<< HEAD
                             if(File.Exists("DEBUG"))
                                 instance = new DebugLogger(true);
                             else
                                 instance = new DebugLogger();
-=======
-                            var debugmode = File.Exists("DEBUG");
-                            instance = new DebugLogger(debugmode);
->>>>>>> 23cc3a5eb67a4433dedb4ac47adff57f4a1a186e
                         }
                     }
                 }
@@ -88,7 +83,6 @@ namespace SelfieRT
 
         private DebugLogger(bool debugmode)
         {
-<<<<<<< HEAD
           
             W = outputreal;
 
@@ -105,16 +99,5 @@ namespace SelfieRT
         {
             Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.fff") + ":" + s);
         }
-=======
-            if (debugmode)
-                W = (s) => Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.fff") + ":" + s);
-            else
-                W = (s) => { };
-
-
-        }
-
-        public Action<string> W { get; set; }
->>>>>>> 23cc3a5eb67a4433dedb4ac47adff57f4a1a186e
     }
 }
