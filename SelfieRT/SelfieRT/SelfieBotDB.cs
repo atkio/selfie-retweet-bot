@@ -35,6 +35,7 @@ namespace SelfieRT
         const string WaitRecognizer = "CREATE TABLE `WaitRecognizer` (`UID`	varchar(100) NOT NULL,`TID`	varchar(100) NOT NULL,`Tweet`	varchar(100),`PhotoPath`	varchar(100),`PhotoUrl`	varchar(100),PRIMARY KEY(`PhotoUrl`));";
         const string WaitRetweet = "CREATE TABLE `WaitRetweet` (`TID`	varchar(100),`UID`	varchar(100),`RANK`	INTEGER,PRIMARY KEY(`TID`));";
         const string WatchUsers = "CREATE TABLE `WatchUsers` (`UID`	varchar(100),`SINCEID`	varchar(100) NOT NULL,PRIMARY KEY(`UID`));";
+        const string ListTimeLineMAXID = "CREATE TABLE `ListTimeLineMAXID` (`UID`	varchar(100) NOT NULL,`LIST`	varchar(100) NOT NULL,`SINCEID`	varchar(100) NOT NULL);";
 
         public void CreateDB()
         {
@@ -67,6 +68,9 @@ namespace SelfieRT
                     command.ExecuteNonQuery();
 
                     command.CommandText = WatchUsers;
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = ListTimeLineMAXID;
                     command.ExecuteNonQuery();
 
                 }
