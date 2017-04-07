@@ -82,14 +82,16 @@ namespace SelfieRT
                 var faces = new List<Microsoft.ProjectOxford.Face.Contract.Face>(faceServiceClient.DetectAsync(surl, true, false, requiedFaceAttributes).Result);
                 return faces.Any(face => face.FaceAttributes.Gender == "female" &&
                                              face.FaceAttributes.Age < 30);
+
             }
-            catch
+            catch (Exception e)
             {
+                DebugLogger.Instance.W("MakeRequestUrl >" + e.Message);
                 return false;
             }
 
         }
 
-    
+
     }
 }

@@ -8,7 +8,7 @@ namespace SelfieRT.Tweet
 {
     public class SelfieTweetFunc
     {
-        const ulong MINTWITTERID = 204251866668871681;
+
         #region 定义
         private static volatile SelfieTweetFunc instance;
         private static object syncRoot = new Object();
@@ -33,7 +33,7 @@ namespace SelfieRT.Tweet
         private SelfieTweetFunc()
         {
             config = SelfieBotConfig.Instance;
-            auth = new SingleUserAuthorizer
+            authuser = new SingleUserAuthorizer
             {
                 CredentialStore = new SingleUserInMemoryCredentialStore
                 {
@@ -43,28 +43,60 @@ namespace SelfieRT.Tweet
                     AccessTokenSecret = config.Twitter.AccessTokenSecret
                 }
             };
+
+            authapp = new ApplicationOnlyAuthorizer
+            {
+                CredentialStore = new InMemoryCredentialStore()
+                {
+                    ConsumerKey = config.Twitter.ConsumerKey,
+                    ConsumerSecret = config.Twitter.ConsumerSecret
+                }
+            };
             db = new SelfieBotDB();
+
+        }
+
+        private TwitterContext AuthorizeContext(IAuthorizer auth)
+        {
             try
             {
-                auth.AuthorizeAsync().Wait(5*1000);
+                auth.AuthorizeAsync().Wait(5 * 1000);
+                return new TwitterContext(auth);
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("TwitterAPI　failed.");
+                throw new Exception("TwitterAPI　failed." + e.Message);
             }
         }
-        private SingleUserAuthorizer auth;
+
+        /// <summary>
+        /// 带用户的认证，本人timeline和转推用
+        /// </summary>
+        private SingleUserAuthorizer authuser;
+
+        /// <summary>
+        /// 不带用户的认证，搜文字和list用
+        /// </summary>
+        private ApplicationOnlyAuthorizer authapp;
+
         private SelfieBotConfig config;
         private SelfieBotDB db;
         #endregion
 
-        #region 根据定义的关键字查找
+
+        /// <summary>
+        /// 根据定义的关键字查找
+        /// </summary>
         public void SearchTweets()
         {
             foreach (var kv in db.getSearchKey())
             {
                 ulong maxid;
-                var result = SearchData(kv.Key, kv.Value, out maxid);
+                DebugLogger.Instance.W("SearchTweets:" + kv.Value + " >" + kv.Key);
+
+                var result = SelfieTweetFilter.Filter(TweetHelper.SearchTweet(authapp, kv.Key, kv.Value, out maxid));
+
+                DebugLogger.Instance.W("SearchTweets newid  >" + maxid);
                 db.updateSearchKey(kv.Key, maxid);
 
                 if (result.Count > 0)
@@ -76,179 +108,199 @@ namespace SelfieRT.Tweet
             }
         }
 
-        private List<Status> SearchData(string regstr, ulong sinceid, out ulong retmaxid)
-        {
-            if (sinceid < MINTWITTERID) sinceid = MINTWITTERID;
-            retmaxid = sinceid;
-            var twitterCtx = new TwitterContext(auth);
 
-            var rslist = new List<Status>();
-            var searchResponse =
-              (from search in twitterCtx.Search
-               where search.Type == SearchType.Search &&
-                     search.Query == regstr + "  -filter:retweets" &&
-                     search.Count == 100 &&
-                     search.SinceID == sinceid
-               select search)
-              .SingleOrDefault();
-
-            if (searchResponse != null && searchResponse.Statuses != null && searchResponse.Statuses.Count > 0)
-            {
-                rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));
-            }
-            else
-            {
-                return rslist;
-            }
-
-            while (rslist.Count < 500 && rslist.Count > 0)
-            {
-                if (rslist.Min(st => st.StatusID) < sinceid)
-                    break;
-
-                ulong maxid = rslist.Min(st => st.StatusID) - 1;
-
-                Thread.Sleep(10 * 1000);
-
-                try
-                {
-                    searchResponse =
-                         (from search in twitterCtx.Search
-                          where search.Type == SearchType.Search &&
-                                search.Query == regstr + "  -filter:retweets" &&
-                                search.Count == 100 &&
-                                search.SinceID == sinceid &&
-                                search.MaxID == maxid
-                          select search)
-                         .SingleOrDefault();
-                }
-                catch
-                {
-                    searchResponse = null;
-                }
-                if (searchResponse != null && searchResponse.Statuses != null)
-                {
-                    if (searchResponse.Statuses.Count < 1)
-                        break;
-
-                    rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > sinceid));
-                }
-                else
-                {
-                    break;
-                }
-            }
-            retmaxid = rslist.Max(tw => tw.StatusID);
-            return SelfieTweetFilter.Filter(rslist);
-        }
-
-        #endregion
-        #region 查找本人timeline
-
+        /// <summary>
+        /// 查找本人timeline
+        /// </summary>
         public void searchTimeline()
         {
+
             ulong HTLMaxid = db.getHTLMaxid();
             ulong newid;
-            var result = GetHomeTL(HTLMaxid, out newid);
+            DebugLogger.Instance.W("searchTimeline HTLMaxid:" + HTLMaxid);
+            var result = SelfieTweetFilter.Filter(TweetHelper.GetHomeTL(authuser, HTLMaxid, out newid));
+            DebugLogger.Instance.W("searchTimeline newid:" + newid);
+            db.updateHTLMaxid(newid);
+
             if (result.Count > 0)
             {
-                db.updateHTLMaxid(newid);
                 var todownload = SelfieTweetFilter.GetImageURL(result).ToArray();
                 ImageDownloader.Download(todownload);
             }
         }
 
-        private List<Status> GetHomeTL(ulong sinceid, out ulong retmaxid)
-        {
-
-            if(sinceid < MINTWITTERID ) sinceid = MINTWITTERID;
-            var twitterCtx = new TwitterContext(auth);
-
-            var rslist =
-               (from tweet in twitterCtx.Status
-                where tweet.Type == StatusType.Home &&
-                   tweet.Count == 200 &&
-                   tweet.SinceID == sinceid
-                select tweet)
-               .ToList();
 
 
-            while (rslist.Count < 500 && rslist.Count > 0)
-            {
-                if (rslist.Min(st => st.StatusID) < sinceid)
-                    break;
-
-                ulong maxid = rslist.Min(st => st.StatusID) - 1;
-
-                Thread.Sleep(10 * 1000);
-
-                var searchResponse =
-                     (from tweet in twitterCtx.Status
-                      where tweet.Type == StatusType.Home &&
-                         tweet.Count == 200 &&
-                         tweet.SinceID == sinceid &&
-                         tweet.MaxID == maxid
-                      select tweet)
-                       .ToList();
 
 
-                if (searchResponse != null)
-                {
-                    if (searchResponse.Count < 1)
-                        break;
-
-                    rslist.AddRange(searchResponse);
-                }
-                else
-                {
-                    break;
-                }
-
-            }
-
-            retmaxid = sinceid;
-            rslist = rslist.Where(st => st.StatusID > sinceid).ToList();
-            if (rslist.Count < 1)
-                return rslist;
-
-            sinceid = rslist.Max(st => st.StatusID);
-
-
-            return SelfieTweetFilter.Filter(rslist);
-
-        }
-        #endregion
-
-        #region 获取list
-
+        /// <summary>
+        /// 获取list
+        /// </summary>
         public void searchList()
         {
 
             foreach (var listd in db.getLTLMaxid())
             {
                 ulong newid;
-                var result = GetList(listd.UID,listd.LIST,ulong.Parse(listd.SINCEID), out newid);
+                var result = SelfieTweetFilter.Filter(TweetHelper.GetList(authapp, listd.UID, listd.LIST, ulong.Parse(listd.SINCEID), out newid));
+                listd.SINCEID = newid.ToString();
+                db.updateLTLMaxid(listd);
                 if (result.Count > 0)
                 {
-                    listd.SINCEID = newid.ToString();
-                    db.updateLTLMaxid(listd);
+
                     var todownload = SelfieTweetFilter.GetImageURL(result).ToArray();
                     ImageDownloader.Download(todownload);
                 }
             }
 
-           
+
         }
 
-        private List<Status> GetList(string username,string listname,ulong sinceid, out ulong retmaxid)
+        #region 转推方法
+        /// <summary>
+        /// 发推
+        /// </summary>
+        /// <param name="st"></param>
+        public void post(string st)
         {
-            var twitterCtx = new TwitterContext(auth);
+
+            var twitterContext = new TwitterContext(authuser);
+            var tweet = twitterContext.TweetAsync(st).Result;
+        }
+
+        /// <summary>
+        /// 转推
+        /// </summary>
+        /// <param name="tweetID"></param>
+        /// <returns></returns>
+        public void reTweet(ulong tweetID)
+        {
+
+            var twitterContext = new TwitterContext(authuser);
+            try
+            {
+                var retweet = twitterContext.RetweetAsync(tweetID).Result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+
+        public void RTAll()
+        {
+            foreach (ulong id in db.getWaitRetweet())
+            {
+                reTweet(id);
+                db.removeRetweet(id);
+                Thread.Sleep(90 * 1000);
+            }
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TweetHelper
+    {
+        const ulong MINTWITTERID = 204251866668871681;
+
+        /// <summary>
+        /// 搜索推文
+        /// https://github.com/JoeMayo/LinqToTwitter/wiki/Searching-Twitter
+        /// </summary>
+        /// <param name="authapp">认证器</param>
+        /// <param name="searchtext">搜索文字</param>
+        /// <param name="mintid">最小twitterID</param>
+        /// <param name="retid">返回最新twitterID</param>
+        /// <param name="maxcount">最大搜素推特数</param>
+        /// <returns></returns>
+        public static List<Status> SearchTweet(ApplicationOnlyAuthorizer authapp, string searchtext, ulong mintid, out ulong retid, int maxcount = 500)
+        {
+
+            if (mintid < MINTWITTERID) mintid = MINTWITTERID;
+            retid = mintid;
+
+            var twitterCtx = new TwitterContext(authapp);
+            var rslist = new List<Status>();
+            var searchResponse =
+              (from search in twitterCtx.Search
+               where search.Type == SearchType.Search &&
+                     search.Query == searchtext + "  -filter:retweets" &&
+                     search.Count == 100 &&
+                     search.SinceID == mintid
+               select search)
+              .SingleOrDefaultAsync()
+              .Result;
+
+
+            if (searchResponse != null && searchResponse.Statuses != null && searchResponse.Statuses.Count > 0)
+            {
+                retid = searchResponse.Statuses.Max(tw => tw.StatusID);
+                rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > mintid));
+                DebugLogger.Instance.W("SearchData   >" + rslist.Count);
+            }
+            else
+            {
+                return rslist;
+            }
+
+            while (rslist.Count < maxcount && rslist.Count > 0)
+            {
+                if (rslist.Min(st => st.StatusID) < mintid)
+                    break;
+
+                ulong maxid = rslist.Min(st => st.StatusID) - 1;
+
+                Thread.Sleep(10 * 1000);
+
+                searchResponse =
+                     (from search in twitterCtx.Search
+                      where search.Type == SearchType.Search &&
+                            search.Query == searchtext + "  -filter:retweets" &&
+                            search.Count == 100 &&
+                            search.SinceID == mintid &&
+                            search.MaxID == maxid
+                      select search)
+                      .SingleOrDefaultAsync()
+                      .Result;
+
+                if (searchResponse != null && searchResponse.Statuses != null && searchResponse.Statuses.Count > 0)
+                {
+                    rslist.AddRange(searchResponse.Statuses.Where(st => st.StatusID > mintid));
+                    DebugLogger.Instance.W("SearchData   >" + rslist.Count);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return rslist;
+        }
+
+        /// <summary>
+        /// 搜索list
+        /// https://github.com/JoeMayo/LinqToTwitter/wiki/Reading-List-Statuses
+        /// </summary>
+        /// <param name="authapp"></param>
+        /// <param name="username"></param>
+        /// <param name="listname"></param>
+        /// <param name="mintid"></param>
+        /// <param name="retid"></param>
+        /// <param name="maxStatuses"></param>
+        /// <returns></returns>
+        public static List<Status> GetList(ApplicationOnlyAuthorizer authapp, string username, string listname, ulong mintid, out ulong retid, int maxStatuses = 500)
+        {
+
+            var twitterCtx = new TwitterContext(authapp);
             string ownerScreenName = username;
             string slug = listname;
-            int maxStatuses = 300;
             int lastStatusCount = 0;
             // last tweet processed on previous query
-            ulong sinceID = sinceid>MINTWITTERID? sinceid: MINTWITTERID;
+            ulong sinceID = mintid > MINTWITTERID ? mintid : MINTWITTERID;
             ulong maxID;
             int count = 10;
             var statusList = new List<Status>();
@@ -256,16 +308,19 @@ namespace SelfieRT.Tweet
             // only count
             var listResponse =
                  (from list in twitterCtx.List
-                 where list.Type == ListType.Statuses &&
-                       list.OwnerScreenName == ownerScreenName &&
-                       list.Slug == slug &&
-                       list.Count == count
-                 select list)
+                  where list.Type == ListType.Statuses &&
+                        list.OwnerScreenName == ownerScreenName &&
+                        list.Slug == slug &&
+                        list.Count == count
+                  select list)
                 .SingleOrDefaultAsync().Result;
 
             if (listResponse != null && listResponse.Statuses != null)
             {
                 List<Status> newStatuses = listResponse.Statuses;
+
+                retid = newStatuses.Max(s => s.StatusID);
+
                 // first tweet processed on current query
                 maxID = newStatuses.Min(status => status.StatusID) - 1;
                 statusList.AddRange(newStatuses);
@@ -296,57 +351,82 @@ namespace SelfieRT.Tweet
                 }
                 while (lastStatusCount != 0 && statusList.Count < maxStatuses);
 
-                retmaxid = statusList.Max(s => s.StatusID);
-                return SelfieTweetFilter.Filter(statusList);
+
+                return statusList;
             }
-            retmaxid = sinceID;
+            retid = sinceID;
             return statusList;
 
         }
 
-        #endregion
-            #region 转推方法
-            /// <summary>
-            /// 发推
-            /// </summary>
-            /// <param name="st"></param>
-        public void post(string st)
-        {
-            var twitterContext = new TwitterContext(auth);
-            var tweet = twitterContext.TweetAsync(st).Result;
-        }
-
         /// <summary>
-        /// 转推
+        /// 搜索本人的TIMELINE
+        /// https://github.com/JoeMayo/LinqToTwitter/wiki/Querying-the-Home-Timeline
         /// </summary>
-        /// <param name="tweetID"></param>
+        /// <param name="authuser"></param>
+        /// <param name="mintid"></param>
+        /// <param name="retid"></param>
+        /// <param name="maxcount"></param>
         /// <returns></returns>
-        public void reTweet(ulong tweetID)
+        public static List<Status> GetHomeTL(SingleUserAuthorizer authuser, ulong mintid, out ulong retid, int maxcount = 500)
         {
-            var twitterContext = new TwitterContext(auth);
-            try
+
+            if (mintid < MINTWITTERID) mintid = MINTWITTERID;
+            var twitterCtx = new TwitterContext(authuser);
+
+            retid = mintid;
+
+            var rslist =
+               (from tweet in twitterCtx.Status
+                where tweet.Type == StatusType.Home &&
+                   tweet.Count == 200 &&
+                   tweet.SinceID == mintid
+                select tweet)
+               .ToList();
+
+
+            while (rslist.Count < maxcount && rslist.Count > 0)
             {
-                var retweet = twitterContext.RetweetAsync(tweetID).Result;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+                if (rslist.Min(st => st.StatusID) <= mintid)
+                    break;
+
+                retid = rslist.Max(st => st.StatusID);
+
+                ulong maxid = rslist.Min(st => st.StatusID) - 1;
+
+                Thread.Sleep(10 * 1000);
+
+                var searchResponse =
+                     (from tweet in twitterCtx.Status
+                      where tweet.Type == StatusType.Home &&
+                         tweet.Count == 200 &&
+                         tweet.SinceID == mintid &&
+                         tweet.MaxID == maxid
+                      select tweet)
+                       .ToList();
+
+
+                if (searchResponse != null && searchResponse.Count > 0)
+                {
+                    rslist.AddRange(searchResponse);
+                }
+                else
+                {
+                    break;
+                }
+
             }
 
-        }
 
-        public void RTAll()
-        {
-            foreach (ulong id in db.getWaitRetweet())
-            {
-                reTweet(id);
-                db.removeRetweet(id);
-                Thread.Sleep(90 * 1000);
-            }
+
+            return rslist;
+
         }
-        #endregion
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class SelfieTweetFilter
     {
         static SelfieBotDB db = new SelfieBotDB();
@@ -397,7 +477,7 @@ namespace SelfieRT.Tweet
                       {
                           TID = s.StatusID.ToString(),
                           UID = s.User.ScreenNameResponse,
-                          Tweet = s.Text.Substring(0,20),
+                          Tweet = s.Text.Substring(0, 10),
                           PhotoUrl = url,
                           PhotoPath = ""
                       })

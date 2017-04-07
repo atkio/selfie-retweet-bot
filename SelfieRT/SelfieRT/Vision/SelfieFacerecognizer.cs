@@ -33,8 +33,8 @@ namespace SelfieRT
 
         private SelfieFacerecognizer()
         {
-         
-           
+
+
         }
 
 
@@ -43,7 +43,7 @@ namespace SelfieRT
         /// </summary>
         public void checkALL()
         {
-            var db =  new SelfieBotDB();
+            var db = new SelfieBotDB();
             var nrs = db.getAllWaitRecognizer();
             SelfieBotConfig config = SelfieBotConfig.Instance;
             MicrosoftFace face = MicrosoftFace.Instance;
@@ -51,7 +51,8 @@ namespace SelfieRT
 
 
             List<WaitRecognizer> isfaces;
-           
+
+
 
             //广告用户，相同文字（20字）多个用户同时出现
             var cusers = nrs.GroupBy(n => n.Tweet)
@@ -60,31 +61,37 @@ namespace SelfieRT
                           .Distinct()
                           .ToList();
 
+            DebugLogger.Instance.W("found same text >" + cusers.Count);
+
             //本地查出有脸图片
             isfaces = nrs.Where(n => !cusers.Contains(n.UID))
                          .GroupBy(n => n.TID)
                          .Where(grp => grp.Any(n => Detect(n.PhotoPath)))
                          .SelectMany(grp => grp)
                          .ToList();
-            
 
-            
+            DebugLogger.Instance.W("found faces >" + isfaces.Count);
+
             if (config.MicrosoftCognitiveServices.UseFace)
             {
                 isfaces = isfaces.GroupBy(wr => wr.TID)
                               .Where(grp => grp.Any(nr => face.MakeRequestUrl(nr.PhotoUrl)))
                               .SelectMany(grp => grp)
                               .ToList();
+
+                DebugLogger.Instance.W("found faces with CognitiveServices  >" + isfaces.Count);
             }
 
             if (config.MicrosoftCognitiveServices.UseComputerVision)
-            { 
+            {
                 var adultida = isfaces.GroupBy(n => n.UID)
                               .Where(grp => grp.Any(nr => vision.AnalyzeUrlAdult(nr.PhotoUrl)))
                               .Select(grp => grp.Key).ToList();
 
                 //成人内容的用户加入黑名单
                 db.addBandIDs(adultida);
+
+                DebugLogger.Instance.W("found adult users  >" + adultida.Count);
 
                 isfaces = isfaces.Where(wr => !adultida.Contains(wr.UID))
                                  .ToList();
@@ -94,14 +101,21 @@ namespace SelfieRT
 
             foreach (var tid in isfaces.Select(i => i.TID).Distinct())
             {
+                DebugLogger.Instance.W("addtoretweet >" + tid);
+
                 db.addToRetweet(tid);
             }
 
             db.removeAllWaitRecognizer();
+
+            DebugLogger.Instance.W("removeAllWaitRecognizer");
+
             foreach (FileInfo file in new DirectoryInfo(config.PhotoTempPath).GetFiles())
             {
                 file.Delete();
             }
+
+            DebugLogger.Instance.W("Deleted all files");
         }
 
         protected static bool IsFileLocked(string file)
@@ -177,6 +191,7 @@ namespace SelfieRT
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                DebugLogger.Instance.W(e.StackTrace);
                 return false;
             }
             finally
@@ -190,5 +205,8 @@ namespace SelfieRT
 
         }
         #endregion
+        
     }
+
+
 }

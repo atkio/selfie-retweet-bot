@@ -50,9 +50,9 @@ namespace SelfieRT
 
                 return analysisResult.Adult.IsAdultContent;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                DebugLogger.Instance.W("AnalyzeUrlAdult >" + e.Message);
                 return false;
             }
         }

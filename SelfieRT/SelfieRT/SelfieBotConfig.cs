@@ -54,8 +54,8 @@ namespace SelfieRT
         /// <summary>
         /// 本地临时保存图片的位置
         /// </summary>
-        public string PhotoTempPath =Path.Combine(Environment.CurrentDirectory, "TEMP");
-                   
+        public string PhotoTempPath = Path.Combine(Environment.CurrentDirectory, "TEMP");
+
 
         public CognitiveServicesType MicrosoftCognitiveServices { get; set; }
 
@@ -87,7 +87,7 @@ namespace SelfieRT
                     }
                     catch
                     {
-                        throw new Exception("Define file failed.");
+                        throw new IOException("Define file failed.");
                     }
                 }
                 return _Instance;

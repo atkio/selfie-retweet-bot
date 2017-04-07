@@ -54,7 +54,7 @@ namespace SelfieRT.Tweet
         {
             try
             {
-                if(!Directory.Exists(config.PhotoTempPath))
+                if (!Directory.Exists(config.PhotoTempPath))
                 {
                     Directory.CreateDirectory(config.PhotoTempPath);
                 }
