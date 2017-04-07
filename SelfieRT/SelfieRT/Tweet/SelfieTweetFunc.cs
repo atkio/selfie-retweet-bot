@@ -228,8 +228,7 @@ namespace SelfieRT.Tweet
             var searchResponse =
               (from search in twitterCtx.Search
                where search.Type == SearchType.Search &&
-                     search.Query == searchtext + "  -filter:retweets" &&
-                     search.Count == 100 &&
+                     search.Query == searchtext  &&
                      search.SinceID == mintid
                select search)
               .SingleOrDefaultAsync()
@@ -259,8 +258,7 @@ namespace SelfieRT.Tweet
                 searchResponse =
                      (from search in twitterCtx.Search
                       where search.Type == SearchType.Search &&
-                            search.Query == searchtext + "  -filter:retweets" &&
-                            search.Count == 100 &&
+                            search.Query == searchtext &&
                             search.SinceID == mintid &&
                             search.MaxID == maxid
                       select search)
