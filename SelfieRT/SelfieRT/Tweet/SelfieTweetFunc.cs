@@ -207,6 +207,13 @@ namespace SelfieRT.Tweet
     {
         const ulong MINTWITTERID = 204251866668871681;
 
+
+        static TwitterContext AuthTwitterContext(IAuthorizer authapp)
+        {
+            authapp.AuthorizeAsync().Wait();
+            return new TwitterContext(authapp);
+        }
+
         /// <summary>
         /// 搜索推文
         /// https://github.com/JoeMayo/LinqToTwitter/wiki/Searching-Twitter
@@ -223,7 +230,8 @@ namespace SelfieRT.Tweet
             if (mintid < MINTWITTERID) mintid = MINTWITTERID;
             retid = mintid;
 
-            var twitterCtx = new TwitterContext(authapp);
+            
+            var twitterCtx = AuthTwitterContext(authapp);
             var rslist = new List<Status>();
             var searchResponse =
               (from search in twitterCtx.Search
@@ -293,7 +301,7 @@ namespace SelfieRT.Tweet
         public static List<Status> GetList(ApplicationOnlyAuthorizer authapp, string username, string listname, ulong mintid, out ulong retid, int maxStatuses = 500)
         {
 
-            var twitterCtx = new TwitterContext(authapp);
+            var twitterCtx = AuthTwitterContext(authapp);
             string ownerScreenName = username;
             string slug = listname;
             int lastStatusCount = 0;
@@ -370,7 +378,7 @@ namespace SelfieRT.Tweet
         {
 
             if (mintid < MINTWITTERID) mintid = MINTWITTERID;
-            var twitterCtx = new TwitterContext(authuser);
+            var twitterCtx = AuthTwitterContext(authuser);
 
             retid = mintid;
 
