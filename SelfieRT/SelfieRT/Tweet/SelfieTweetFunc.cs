@@ -94,7 +94,8 @@ namespace SelfieRT.Tweet
                 ulong maxid;
                 DebugLogger.Instance.W("SearchTweets:" + kv.Value + " >" + kv.Key);
 
-                var result = SelfieTweetFilter.Filter(TweetHelper.SearchTweet(authapp, kv.Key, kv.Value, out maxid));
+                var bids = TweetHelper.GetBlockedIDs(authuser);
+                var result = SelfieTweetFilter.Filter(TweetHelper.SearchTweet(authapp, kv.Key, kv.Value, out maxid), bids);
 
                 DebugLogger.Instance.W("SearchTweets newid  >" + maxid);
                 db.updateSearchKey(kv.Key, maxid);
@@ -212,6 +213,24 @@ namespace SelfieRT.Tweet
         {
             authapp.AuthorizeAsync().Wait();
             return new TwitterContext(authapp);
+        }
+
+
+        public static List<string> GetBlockedIDs(SingleUserAuthorizer authuser)
+        {
+            var twitterCtx = AuthTwitterContext(authuser);
+            var blockResponse =
+                (from block in twitterCtx.Blocks
+                 where block.Type == BlockingType.List
+                 select block)
+                .SingleOrDefaultAsync()
+                .Result;
+
+            if (blockResponse != null && blockResponse.Users != null)
+            {
+                return blockResponse.Users.Select(user => user.ScreenNameResponse).ToList();
+            }
+            return new List<string>();
         }
 
         /// <summary>
@@ -440,7 +459,7 @@ namespace SelfieRT.Tweet
         static List<string> BlockTexts = db.getBlockTexts();
         static List<string> BandIDs = db.getBandIDs();
         static List<string> NameBlockTexts = db.getNameBlockTexts();
-
+      
         /// <summary>
         /// 过滤推文
         /// </summary>
@@ -448,10 +467,30 @@ namespace SelfieRT.Tweet
         /// <returns></returns>
         public static List<Status> Filter(List<Status> src)
         {
+           
+                return src
+                 .AsParallel()
+                 .Where(tw => !BlockTexts.Any(bt => tw.Text.Contains(bt)) && /*推特文字过滤*/
+                              !BandIDs.Contains(tw.User.ScreenNameResponse) && /*推特黑名单过滤*/
+                              !NameBlockTexts.Any(bt => tw.User.Name.Contains(bt)) && /*推特用户名过滤*/
+                              tw.RetweetedStatus.StatusID == 0) /*非转推*/
+                .ToList();
+        }
+
+        /// <summary>
+        /// 过滤推文
+        /// </summary>
+        /// <param name="src">推文</param>
+        /// <returns></returns>
+        public static List<Status> Filter(List<Status> src, List<string>  blockedids)
+        {
+            var iblockedids = new List<string>();
+            iblockedids.AddRange(blockedids);
+            iblockedids.AddRange(BandIDs);
             return src
              .AsParallel()
              .Where(tw => !BlockTexts.Any(bt => tw.Text.Contains(bt)) && /*推特文字过滤*/
-                          !BandIDs.Contains(tw.User.ScreenNameResponse) && /*推特黑名单过滤*/
+                          !iblockedids.Contains(tw.User.ScreenNameResponse) && /*推特黑名单过滤*/
                           !NameBlockTexts.Any(bt => tw.User.Name.Contains(bt)) && /*推特用户名过滤*/
                           tw.RetweetedStatus.StatusID == 0) /*非转推*/
             .ToList();
