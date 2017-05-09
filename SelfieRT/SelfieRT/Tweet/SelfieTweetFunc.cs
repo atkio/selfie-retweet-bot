@@ -368,6 +368,9 @@ namespace SelfieRT.Tweet
                         break;
 
                     newStatuses = listResponse.Statuses;
+                    
+                    if (newStatuses.Count == 0)
+                        break;
                     // first tweet processed on current query
                     maxID = newStatuses.Min(status => status.StatusID) - 1;
                     statusList.AddRange(newStatuses);
