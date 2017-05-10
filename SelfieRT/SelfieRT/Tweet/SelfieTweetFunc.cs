@@ -184,7 +184,7 @@ namespace SelfieRT.Tweet
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                DebugLogger.Instance.W("reTweet ERR  >" + e.StackTrace);
             }
 
         }
