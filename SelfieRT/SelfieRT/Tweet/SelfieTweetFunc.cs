@@ -184,6 +184,7 @@ namespace SelfieRT.Tweet
             }
             catch (Exception e)
             {
+                DebugLogger.Instance.W("reTweet ERR  tweetID >" + tweetID;
                 DebugLogger.Instance.W("reTweet ERR  >" + e.StackTrace);
             }
 
