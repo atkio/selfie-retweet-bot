@@ -181,7 +181,7 @@ namespace SelfieRT
             cmd.StartInfo.RedirectStandardInput = true;
             cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.CreateNoWindow = true;
-            cmd.StartInfo.UseShellExecute = false;
+            cmd.StartInfo.UseShellExecute = true;
             cmd.Start();
             cmd.WaitForExit();
             return cmd.StandardOutput.ReadToEnd();
