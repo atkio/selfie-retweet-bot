@@ -178,18 +178,16 @@ namespace SelfieRT
         {
             var rtn = new List<string>();
 
-            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            Process proc = new Process();
             proc.StartInfo.FileName = script;
-         
-
-            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.Arguments = "";
             proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-         
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.RedirectStandardInput = true;
+            proc.StartInfo.RedirectStandardOutput = true;
             proc.Start();
-            StreamReader q = proc.StandardOutput;
-            while (!proc.HasExited)
-                rtn.Add(q.ReadLine());
+            var output = proc.StandardOutput.ReadToEnd();
+            Console.WriteLine("stdout: {0}", output);
 
 
             return rtn;
