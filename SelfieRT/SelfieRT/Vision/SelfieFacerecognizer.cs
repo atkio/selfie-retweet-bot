@@ -177,16 +177,20 @@ namespace SelfieRT
         static List<string> CallScript(string script)
         {
             var rtn = new List<string>();
-            Process cmd = new Process();
-            cmd.StartInfo.FileName = script;
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.CreateNoWindow = true;
-            cmd.StartInfo.UseShellExecute = false;
-            cmd.Start();
-            StreamReader q = cmd.StandardOutput;
-            while (!cmd.HasExited)
+
+            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = script;
+         
+
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+         
+            proc.Start();
+            StreamReader q = proc.StandardOutput;
+            while (!proc.HasExited)
                 rtn.Add(q.ReadLine());
+
 
             return rtn;
         }
