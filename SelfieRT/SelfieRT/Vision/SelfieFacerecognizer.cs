@@ -167,14 +167,15 @@ namespace SelfieRT
         public static Dictionary<string,bool> LocalCheckNsfw(string script)
         {
 
-            var vals = CallScript(script);
-
-            vals.ForEach(v => Console.WriteLine(v));
-            return 
-          vals 
+            var vals = CallScript(script)
                 .Where(str => str.StartsWith("NSFW:"))
+                .ToList();
+            return vals
                 .Select(str => str.Substring(5).Split(','))
-                .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) >0.75);
+                .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) > 0.75);
+
+          
+                
 
         }
 
