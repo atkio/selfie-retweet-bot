@@ -70,9 +70,15 @@ namespace SelfieRT
             if (!String.IsNullOrEmpty(config.NsfwScript))
             {
                 var nsfwdic = LocalCheckNsfw(config.NsfwScript);
+                foreach(var kv in nsfwdic)
+                {
+                    DebugLogger.Instance.W("NFSW;" + kv.Key + ":" + kv.Value);
+                }
+
                 valueTweets = valueTweets
-                               .Where(t => !nsfwdic.ContainsKey(t.PhotoPath) ||
-                                          (nsfwdic.ContainsKey(t.PhotoPath) && nsfwdic[t.PhotoPath] == false))
+                               .GroupBy(n => n.TID)
+                               .Where(t => t.All(tt=> nsfwdic[tt.PhotoPath] == false))
+                               .SelectMany(t=>t)
                                .ToList();
             }
 
