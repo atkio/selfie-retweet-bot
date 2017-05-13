@@ -3,9 +3,11 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SelfieRT
 {
@@ -44,27 +46,38 @@ namespace SelfieRT
         public void checkALL()
         {
             var db = new SelfieBotDB();
-            var nrs = db.getAllWaitRecognizer();
+          
             SelfieBotConfig config = SelfieBotConfig.Instance;
             MicrosoftFace face = MicrosoftFace.Instance;
             MicrosoftVision vision = MicrosoftVision.Instance;
-
+            var nrs = db.getAllWaitRecognizer();
 
             List<WaitRecognizer> isfaces;
 
 
-
             //广告用户，相同文字（20字）多个用户同时出现
-            var cusers = nrs.GroupBy(n => n.Tweet)
-                          .Where(grp => grp.Select(n => n.UID).Distinct().Count() > 1)
-                          .SelectMany(grp => grp.Select(n => n.UID))
+            var tweets = nrs.GroupBy(n => n.Tweet)
+                          .Where(grp => grp.Select(n => n.TID).Distinct().Count() > 1)
+                          .SelectMany(grp => grp.Select(n => n.TID))
                           .Distinct()
                           .ToList();
 
-            DebugLogger.Instance.W("found same text >" + cusers.Count);
+            DebugLogger.Instance.W("found same text >" + tweets.Count);
+
+            var valueTweets = nrs.Where(n => !tweets.Contains(n.TID)).ToList();
+
+            //本地检查黄色内容
+            if (!String.IsNullOrEmpty(config.NsfwScript))
+            {
+                var nsfwdic = LocalCheckNsfw(config.NsfwScript);
+                valueTweets = valueTweets
+                               .Where(t => !nsfwdic.ContainsKey(t.PhotoPath) ||
+                                          (nsfwdic.ContainsKey(t.PhotoPath) && nsfwdic[t.PhotoPath] == false))
+                               .ToList();
+            }
 
             //本地查出有脸图片
-            isfaces = nrs.Where(n => !cusers.Contains(n.UID))
+            isfaces = valueTweets
                          .GroupBy(n => n.TID)
                          .Where(grp => grp.Any(n => Detect(n.PhotoPath)))
                          .SelectMany(grp => grp)
@@ -145,11 +158,29 @@ namespace SelfieRT
         const string eyeFileName = "haarcascade_eye.xml";
         const string faceFileName = "visionary_FACES_01_LBP_5k_7k_50x50.xml";
 
-        public static string LocalCheckGender(string file)
+        public static Dictionary<string,bool> LocalCheckNsfw(string script)
         {
-
+            return 
+            Regex.Split(CallScript(script), @"\r?\n|\r")
+                .Where(str => str.StartsWith("NSFW："))
+                .Select(str => str.Substring(5).Split(','))
+                .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) >0.75);
 
         }
+
+        static string CallScript(string script)
+        {
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = script;
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+            cmd.WaitForExit();
+            return cmd.StandardOutput.ReadToEnd();
+        }
+
         public static bool Detect(string file)
         {
             try

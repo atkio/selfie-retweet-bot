@@ -61,6 +61,12 @@ namespace SelfieRT
 
         public const string Define = "Define.conf";
 
+        public string NsfwScript;
+
+        public string GenderScript;
+
+        public string AgeScript;
+
         public static SelfieBotConfig Instance
         {
             get
