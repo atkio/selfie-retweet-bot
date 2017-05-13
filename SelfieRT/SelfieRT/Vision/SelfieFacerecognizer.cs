@@ -186,8 +186,9 @@ namespace SelfieRT
             proc.StartInfo.RedirectStandardInput = true;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.Start();
-            var output = proc.StandardOutput.ReadToEnd();
-            Console.WriteLine("stdout: {0}", output);
+            StreamReader q = proc.StandardOutput;
+                        while (!proc.HasExited)
+                rtn.Add(q.ReadLine());
 
 
             return rtn;
