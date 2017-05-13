@@ -168,7 +168,7 @@ namespace SelfieRT
         {
             return 
             Regex.Split(CallScript(script), @"\r?\n|\r")
-                .Where(str => str.StartsWith("NSFW："))
+                .Where(str => str.StartsWith("NSFW:"))
                 .Select(str => str.Substring(5).Split(','))
                 .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) >0.75);
 
