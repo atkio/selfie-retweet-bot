@@ -168,6 +168,7 @@ namespace SelfieRT
         {
 
             var vals = CallScript(script)
+                .Where(str =>!string.IsNullOrEmpty(str))
                 .Where(str => str.StartsWith("NSFW:"))
                 .ToList();
             return vals
