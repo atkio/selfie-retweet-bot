@@ -184,7 +184,7 @@ namespace SelfieRT
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
             cmd.WaitForExit();
-            return cmd.StandardOutput.ReadToEnd();
+            return Console.ReadLine();
         }
 
         public static bool Detect(string file)
