@@ -167,15 +167,16 @@ namespace SelfieRT
         public static Dictionary<string,bool> LocalCheckNsfw(string script)
         {
             return 
-            Regex.Split(CallScript(script), @"\r?\n|\r")
+            CallScript(script)
                 .Where(str => str.StartsWith("NSFW:"))
                 .Select(str => str.Substring(5).Split(','))
                 .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) >0.75);
 
         }
 
-        static string CallScript(string script)
+        static List<string> CallScript(string script)
         {
+            var rtn = new List<string>();
             Process cmd = new Process();
             cmd.StartInfo.FileName = script;
             cmd.StartInfo.RedirectStandardInput = true;
@@ -183,8 +184,11 @@ namespace SelfieRT
             cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
-            cmd.WaitForExit();
-            return Console.ReadLine();
+            StreamReader q = cmd.StandardOutput;
+            while (!cmd.HasExited)
+                rtn.Add(q.ReadLine());
+
+            return rtn;
         }
 
         public static bool Detect(string file)
