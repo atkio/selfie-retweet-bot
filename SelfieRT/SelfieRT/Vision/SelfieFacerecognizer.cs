@@ -145,7 +145,11 @@ namespace SelfieRT
         const string eyeFileName = "haarcascade_eye.xml";
         const string faceFileName = "visionary_FACES_01_LBP_5k_7k_50x50.xml";
 
+        public static string LocalCheckGender(string file)
+        {
 
+
+        }
         public static bool Detect(string file)
         {
             try
