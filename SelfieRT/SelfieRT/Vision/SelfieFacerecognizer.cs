@@ -179,8 +179,8 @@ namespace SelfieRT
             var rtn = new List<string>();
 
             Process proc = new Process();
-            proc.StartInfo.FileName = script;
-            proc.StartInfo.Arguments = "";
+            proc.StartInfo.FileName = "bash";
+            proc.StartInfo.Arguments = script;
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.RedirectStandardInput = true;
