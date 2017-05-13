@@ -178,8 +178,8 @@ namespace SelfieRT
         {
             Process cmd = new Process();
             cmd.StartInfo.FileName = script;
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
+            //cmd.StartInfo.RedirectStandardInput = true;
+            //cmd.StartInfo.RedirectStandardOutput = true;
             cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = true;
             cmd.Start();
