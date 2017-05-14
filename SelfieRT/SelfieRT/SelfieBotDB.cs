@@ -454,6 +454,15 @@ namespace SelfieRT
 
         [Column(Name = "PhotoUrl", IsPrimaryKey = true, DbType = "varchar")]
         public string PhotoUrl { get; set; }
+
+        [Column(Name = "Adult", CanBeNull = true, DbType = "INT")]
+        public string Adult { get; set; }
+
+        [Column(Name = "Gender", CanBeNull = true, DbType = "INT")]
+        public string Gender { get; set; }
+
+        [Column(Name = "Age", CanBeNull = true, DbType = "INT")]
+        public string Age { get; set; }
     }
 
     [Table(Name = "WaitRetweet")]

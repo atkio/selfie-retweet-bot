@@ -54,9 +54,16 @@ namespace SelfieRT
 
             List<WaitRecognizer> isfaces;
 
+            //本地检查黄色内容
+            if (!String.IsNullOrEmpty(config.NsfwScript))
+            {
+                CallScript(config.NsfwScript);
+            }
 
             //广告用户，相同文字（20字）多个用户同时出现
-            var tweets = nrs.GroupBy(n => n.Tweet)
+            var tweets = nrs
+                          .Where(tw=>tw.Adult != "1")
+                          .GroupBy(n => n.Tweet)
                           .Where(grp => grp.Select(n => n.TID).Distinct().Count() > 1)
                           .SelectMany(grp => grp.Select(n => n.TID))
                           .Distinct()
@@ -66,22 +73,7 @@ namespace SelfieRT
 
             var valueTweets = nrs.Where(n => !tweets.Contains(n.TID)).ToList();
 
-            //本地检查黄色内容
-            if (!String.IsNullOrEmpty(config.NsfwScript))
-            {
-                var nsfwdic = LocalCheckNsfw(config.NsfwScript);
-                foreach(var kv in nsfwdic)
-                {
-                    DebugLogger.Instance.W("NFSW;" + kv.Key + ":" + kv.Value);
-                }
-
-                valueTweets = valueTweets
-                               .GroupBy(n => n.TID)
-                               .Where(t => t.All(tt=> nsfwdic[tt.PhotoPath] == false))
-                               .SelectMany(t=>t)
-                               .ToList();
-            }
-
+            
             //本地查出有脸图片
             isfaces = valueTweets
                          .GroupBy(n => n.TID)
@@ -164,26 +156,11 @@ namespace SelfieRT
         const string eyeFileName = "haarcascade_eye.xml";
         const string faceFileName = "visionary_FACES_01_LBP_5k_7k_50x50.xml";
 
-        public static Dictionary<string,bool> LocalCheckNsfw(string script)
+       
+
+        static void CallScript(string script)
         {
-
-            var vals = CallScript(script)
-                .Where(str =>!string.IsNullOrEmpty(str))
-                .Where(str => str.StartsWith("NSFW:"))
-                .ToList();
-            return vals
-                .Select(str => str.Substring(5).Split(','))
-                .ToDictionary(kv => kv[0], kv => float.Parse(kv[1]) > 0.75);
-
-          
-                
-
-        }
-
-        static List<string> CallScript(string script)
-        {
-            var rtn = new List<string>();
-
+           
             Process proc = new Process();
             proc.StartInfo.FileName = "bash";
             proc.StartInfo.Arguments = script;
@@ -192,12 +169,7 @@ namespace SelfieRT
             proc.StartInfo.RedirectStandardInput = true;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.Start();
-            StreamReader q = proc.StandardOutput;
-                        while (!proc.HasExited)
-                rtn.Add(q.ReadLine());
-
-
-            return rtn;
+            proc.WaitForExit();
         }
 
         public static bool Detect(string file)
