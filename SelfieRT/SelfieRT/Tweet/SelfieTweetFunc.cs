@@ -180,7 +180,23 @@ namespace SelfieRT.Tweet
             var twitterContext = new TwitterContext(authuser);
             try
             {
-                var ts=new System.Threading.Tasks.Task(async () => await twitterContext.RetweetAsync(tweetID));
+                var ts=new System.Threading.Tasks.Task(async () =>
+               {
+                    DebugLogger.Instance.W("RetweetAsync:"+tweetID);
+                   var retweet = await twitterContext.RetweetAsync(tweetID);
+
+                   if (retweet != null &&
+                       retweet.RetweetedStatus != null &&
+                       retweet.RetweetedStatus.User != null)
+                   {
+
+                       DebugLogger.Instance.W(
+                           "\nUser: " + retweet.RetweetedStatus.User.ScreenNameResponse +
+                           "\nTweet: " + retweet.RetweetedStatus.Text +
+                           "\nTweet ID: " + retweet.RetweetedStatus.ID + "\n");
+                   }
+
+               });
                 ts.Start();
                 ts.Wait();
             }
