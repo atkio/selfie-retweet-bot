@@ -54,15 +54,18 @@ namespace SelfieRT
 
             List<WaitRecognizer> isfaces;
 
+            var tweets = nrs;
+
             //本地检查黄色内容
             if (!String.IsNullOrEmpty(config.NsfwScript))
             {
+                DebugLogger.Instance.W("config.NsfwScript > OK" );
                 CallScript(config.NsfwScript);
+                tweets = nrs.Where(tw => tw.Adult != "1").ToList();
             }
 
             //广告用户，相同文字（20字）多个用户同时出现
-            var tweets = nrs
-                          .Where(tw=>tw.Adult != "1")
+             var sametweets = tweets
                           .GroupBy(n => n.Tweet)
                           .Where(grp => grp.Select(n => n.TID).Distinct().Count() > 1)
                           .SelectMany(grp => grp.Select(n => n.TID))
@@ -71,7 +74,7 @@ namespace SelfieRT
 
             DebugLogger.Instance.W("found same text >" + tweets.Count);
 
-            var valueTweets = nrs.Where(n => !tweets.Contains(n.TID)).ToList();
+            var valueTweets = tweets.Where(n => !sametweets.Contains(n.TID)).ToList();
 
             
             //本地查出有脸图片
