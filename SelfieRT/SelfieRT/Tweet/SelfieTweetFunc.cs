@@ -180,7 +180,9 @@ namespace SelfieRT.Tweet
             var twitterContext = new TwitterContext(authuser);
             try
             {
-                var retweet = twitterContext.RetweetAsync(tweetID).Result;
+                var ts=new System.Threading.Tasks.Task(async () => await twitterContext.RetweetAsync(tweetID));
+                ts.Start();
+                ts.Wait();
             }
             catch (Exception e)
             {
