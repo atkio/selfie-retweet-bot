@@ -194,9 +194,10 @@ namespace SelfieRT.Tweet
         {
             foreach (ulong id in db.getWaitRetweet())
             {
+                Thread.Sleep(90 * 1000);
                 reTweet(id);
                 db.removeRetweet(id);
-                Thread.Sleep(90 * 1000);
+               
             }
         }
         #endregion
