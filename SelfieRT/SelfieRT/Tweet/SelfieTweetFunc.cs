@@ -174,14 +174,14 @@ namespace SelfieRT.Tweet
         /// </summary>
         /// <param name="tweetID"></param>
         /// <returns></returns>
-          public void reTweet(ulong tweetID)
+         public async void reTweet(ulong tweetID)
         {
 
             var twitterContext = new TwitterContext(authuser);
             try
             {
 
-                var retweet = twitterContext.RetweetAsync(tweetID).Result;
+                var retweet = await twitterContext.RetweetAsync(tweetID);
 
                 if (retweet != null &&
                     retweet.RetweetedStatus != null &&
@@ -209,7 +209,7 @@ namespace SelfieRT.Tweet
             foreach (ulong id in db.getWaitRetweet())
             {
                 Thread.Sleep(90 * 1000);
-                reTweet(id);
+                System.Threading.Tasks.Task.Run( ()=>reTweet(id) );
                 db.removeRetweet(id);
                
             }
