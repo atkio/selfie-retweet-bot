@@ -67,7 +67,7 @@ namespace SelfieRT
             //广告用户，相同文字（20字）多个用户同时出现
              var sametweets = tweets
                           .GroupBy(n => n.Tweet)
-                          .Where(grp =>   String.IsNullOrWhiteSpace(grp.Key) || grp.Select(n => n.TID).Distinct().Count() > 1)
+                          .Where(grp =>   !String.IsNullOrWhiteSpace(grp.Key) && grp.Select(n => n.TID).Distinct().Count() > 1)
                           .SelectMany(grp => grp.Select(n => n.TID))
                           .Distinct()
                           .ToList();
