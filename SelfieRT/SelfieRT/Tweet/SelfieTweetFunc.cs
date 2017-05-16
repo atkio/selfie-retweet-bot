@@ -174,14 +174,14 @@ namespace SelfieRT.Tweet
         /// </summary>
         /// <param name="tweetID"></param>
         /// <returns></returns>
-        public async void reTweet(ulong tweetID)
+          public void reTweet(ulong tweetID)
         {
 
             var twitterContext = new TwitterContext(authuser);
             try
             {
 
-                var retweet = await twitterContext.RetweetAsync(tweetID);
+                var retweet = twitterContext.RetweetAsync(tweetID).Result;
 
                 if (retweet != null &&
                     retweet.RetweetedStatus != null &&
