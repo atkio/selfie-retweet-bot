@@ -174,36 +174,32 @@ namespace SelfieRT.Tweet
         /// </summary>
         /// <param name="tweetID"></param>
         /// <returns></returns>
-        public void reTweet(ulong tweetID)
+        public async void reTweet(ulong tweetID)
         {
 
             var twitterContext = new TwitterContext(authuser);
             try
             {
-                var ts=new System.Threading.Tasks.Task(async () =>
-               {
-                    DebugLogger.Instance.W("RetweetAsync:"+tweetID);
-                   var retweet = await twitterContext.RetweetAsync(tweetID);
 
-                   if (retweet != null &&
-                       retweet.RetweetedStatus != null &&
-                       retweet.RetweetedStatus.User != null)
-                   {
+                var retweet = await twitterContext.RetweetAsync(tweetID);
 
-                       DebugLogger.Instance.W(
-                           "\nUser: " + retweet.RetweetedStatus.User.ScreenNameResponse +
-                           "\nTweet: " + retweet.RetweetedStatus.Text +
-                           "\nTweet ID: " + retweet.RetweetedStatus.ID + "\n");
-                   }
+                if (retweet != null &&
+                    retweet.RetweetedStatus != null &&
+                    retweet.RetweetedStatus.User != null)
+                {
 
-               });
-                ts.Start();
-                ts.Wait();
+                    DebugLogger.Instance.W(
+                        "\nUser: " + retweet.RetweetedStatus.User.ScreenNameResponse +
+                        "\nTweet: " + retweet.RetweetedStatus.Text +
+                        "\nTweet ID: " + retweet.RetweetedStatus.ID + "\n");
+                }
+
+
             }
             catch (Exception e)
             {
                 DebugLogger.Instance.W("reTweet ERR  tweetID >" + tweetID);
-                DebugLogger.Instance.W("reTweet ERR  >" + e.StackTrace);
+                DebugLogger.Instance.W("reTweet ERR  >" + e.Message);
             }
 
         }
