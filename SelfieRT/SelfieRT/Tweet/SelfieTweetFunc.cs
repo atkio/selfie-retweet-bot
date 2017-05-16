@@ -188,18 +188,15 @@ namespace SelfieRT.Tweet
                     retweet.RetweetedStatus.User != null)
                 {
 
-                    DebugLogger.Instance.W(
-                        "\nUser: " + retweet.RetweetedStatus.User.ScreenNameResponse +
-                        "\nTweet: " + retweet.RetweetedStatus.Text +
-                        "\nTweet ID: " + retweet.RetweetedStatus.ID + "\n");
+                   DebugLogger.Instance.W("reTweet OK tweetID [" + tweetID + "]" + 
+                        " User: " + retweet.RetweetedStatus.User.ScreenNameResponse);
                 }
 
 
             }
             catch (Exception e)
             {
-                DebugLogger.Instance.W("reTweet ERR  tweetID >" + tweetID);
-                DebugLogger.Instance.W("reTweet ERR  >" + e.Message);
+                 DebugLogger.Instance.W("reTweet ERR  tweetID [" + tweetID +"]" + e.Message);
             }
 
         }
